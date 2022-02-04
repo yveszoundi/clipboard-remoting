@@ -1,0 +1,40 @@
+#+TITLE: dangerzone-client README
+
+* What is this?
+
+This is the clipboard server command-line client and it's been tested under Linux and MacOs.
+
+* What is required?
+
+- *Operating System*: Linux or MacOS. Windows and BSD systems haven't been tested yet.
+- A rust compiler and the cargo build tool
+
+* How to build this?
+
+At the root of this project, open a command prompt and type =cargo build=.
+
+* How to run this?
+
+Please refer to the top level folder for desktop or command-line screenshots.
+
+** Display help
+
+#+begin_src sh
+./target/debug/clipboard-cli --help
+#+end_src
+
+** Read contents from the clipboard server
+
+In the example below =copytext.sh= is a simple shell script piping data over to xclip. Without "hacks", on x11 the clipboard contents are lost if the program exits
+- That applies to CLI applications that exit immediately
+- I could implement a basic Desktop client, it's not ideal for most workflows within a tiling window manager (heavy on keyboard shortcuts).
+
+#+begin_src sh
+  clipboard-cli --clipboard-program /home/vip/copytext.sh
+#+end_src
+
+** Write contents to the clipboard server
+
+#+begin_src sh
+  clipboard-cli --command WRITE --text new_clipboard_contents
+#+end_src

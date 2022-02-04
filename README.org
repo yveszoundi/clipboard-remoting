@@ -1,0 +1,47 @@
+#+TITLE: README
+
+* What is this?
+
+A *quick and very dirty* clipboard exchange solution over a network, built out of unwarranted frustration.
+
+[[./images/diagram.png]]
+
+*Please do not use for anything sensitive!*
+
+* How is this being used?
+
+I leverage this tool mostly within Linux virtual machines running a tiling window manager (dwm, etc.).
+
+On the machine where I'm copying text from:
+- =C-c= pushes selected text to the local machine clipboard
+- =C-t Shift-C-c= sends the local machine clipboard contents to the remote clipboard server
+
+On the target machine, where I want to paste text:
+- =C-t Shit-v= reads the remote clipboard server contents and puts it in the local machine clipboard
+- =C-v= pastes the fetched remote clipboard contents
+
+* What is required?
+
+- *Operating System*: Linux or MacOS. Windows and BSD systems haven't been tested yet.
+- A rust compiler and the cargo build tool
+
+* Why this?
+
+I needed a clipboard solution for multiple machines over a network (mostly a MacOS host and several UNIX/Linux virtual machines):
+- I didn't want anything fancy with SSH ([[https://stackoverflow.com/questions/1152362/how-to-send-data-to-local-clipboard-from-a-remote-ssh-session][reverse SSH tunnels]], [[https://www.xquartz.org/][XQuartz]], etc.):
+  - I do not want to transfer simple text over SSH
+  - I only run an SSH server on some of the guest virtual machines but "almost never" on the host machine itself
+- I wasn't able to get [[https://gitlab.freedesktop.org/spice/spice/-/issues/39][spice support]] ready to go for MacOS after few hours.
+
+
+* What is next?
+
+I do not have any immediate plans for this tool, as it fits my main use cases:
+- Copy small configurations for text files between a host and/or several guest virtual machines
+- Copy URLs around
+
+I've been thinking about a virtual machine with networking disabled for managing secrets (passwords, keys, etc.), on machines where I don't have Qubes OS.
+- Encryption will likely be required for data transfer SSL and probably something else wrapped into base64
+- Avoid piping data to auxiliary programs such as xclip, [[https://github.com/tektronix/numconverter/pull/22/files#diff-42cb6807ad74b3e201c5a7ca98b911c5fa08380e942be6e4ac5807f8377f87fcR144][x11 hacks]] to get a persistent keyboard [[https://stackoverflow.com/questions/60137686/how-to-store-text-on-the-system-clipboard-after-application-has-quit-using-gtk3][without many extra libraries]]. 
+  
+  
