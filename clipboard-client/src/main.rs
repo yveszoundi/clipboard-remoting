@@ -132,13 +132,12 @@ fn run(server_host: &str, port_number: u16, clipboard_cmd: ClipboardCmd) -> Resu
     match TcpStream::connect(format!("{}:{}", server_host, port_number)) {
         Ok(mut stream) => {
             let request = input.as_bytes();
-            stream.write(request).unwrap();
+            stream.write(request)?;
 
             let mut reader =BufReader::new(&stream);
             let mut buffer: Vec<u8> = Vec::new();
 
             reader.read_to_end(&mut buffer)?;
-            buffer.shrink_to_fit();
             
             let buffer = &buffer.into_iter().filter(|&i| i != 0).collect::<Vec<u8>>();
             let response = from_utf8(buffer)?;
