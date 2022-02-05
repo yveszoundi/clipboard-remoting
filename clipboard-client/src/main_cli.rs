@@ -1,30 +1,8 @@
 use clap::{App, Arg};
 use std::error::Error;
-use std::net::TcpStream;
-use std::io::{Read, Write, BufReader};
-use std::str::from_utf8;
 use copypasta::{ClipboardContext, ClipboardProvider};
-use std::process::Command;
 
-pub struct ClipboardCmd {
-    name: String,
-    text: Option<String>,
-    clipboard_program: Option<String>,
-}
-
-impl std::fmt::Display for ClipboardCmd {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if self.name.starts_with("READ") {
-            write!(f, "READ:")
-        } else {
-            if let Some(txt) = &self.text {
-                write!(f, "WRITE:{}", txt)
-            } else {
-                write!(f, "WRITE:")
-            }
-        }
-    }
-}
+mod common;
 
 fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let app = App::new("clipboard-client")
@@ -42,14 +20,14 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
                 .long("server-host")
                 .help("Server host")
                 .required(false)
-                .default_value("localhost")
+                .default_value(common::DEFAULT_SERVER_HOST_STR)
                 .takes_value(true)
         ).arg(
             Arg::with_name("server-port")
                 .long("server-port")
                 .help("Server port")
                 .required(false)
-                .default_value("10080")
+                .default_value(common::DEFAULT_SERVER_PORT_STR)
                 .takes_value(true)
         ).arg(
             Arg::with_name("command")
@@ -71,12 +49,12 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
     let server_host = match run_matches.value_of("server-host") {
         Some(proposed_hostname) => proposed_hostname,
-        None => "localhost"
+        None => common::DEFAULT_SERVER_HOST_STR
     };
 
     let server_port = match run_matches.value_of("server-port") {
         Some(proposed_hostname) => proposed_hostname,
-        None => "10080"
+        None => common::DEFAULT_SERVER_PORT_STR
     };
 
     let clipboard_program = run_matches.value_of("clipboard-program");
@@ -99,7 +77,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
     let clipboard_cmd = match proposed_cmd {
         "READ" => {
-            ClipboardCmd {
+            common::ClipboardCmd {
                 name: "READ".to_string(),
                 text: None,
                 clipboard_program: match clipboard_program {
@@ -109,7 +87,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
             }
         },
         _ => {
-            ClipboardCmd {
+            common::ClipboardCmd {
                 name: "WRITE".to_string(),
                 text: match cmd_text_opt {
                     Some(x) => Some(x.to_string()),
@@ -123,53 +101,5 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         }
     };
 
-    run(server_host, server_port.parse::<u16>()?, clipboard_cmd)
-}
-
-fn run(server_host: &str, port_number: u16, clipboard_cmd: ClipboardCmd) -> Result<(), Box<dyn Error + Send + Sync>> {
-    let input = format!("{}", clipboard_cmd);
-
-    match TcpStream::connect(format!("{}:{}", server_host, port_number)) {
-        Ok(mut stream) => {
-            let request = input.as_bytes();
-            stream.write(request)?;
-
-            let mut reader =BufReader::new(&stream);
-            let mut buffer: Vec<u8> = Vec::new();
-
-            reader.read_to_end(&mut buffer)?;
-            
-            let buffer = &buffer.into_iter().filter(|&i| i != 0).collect::<Vec<u8>>();
-            let response = from_utf8(buffer)?;
-
-            if response.starts_with("SUCCESS:") {
-                if input.starts_with("READ:") {
-                    let clipboard_text = &buffer["SUCCESS:".len()..];
-                    let clipboard_text_str = std::str::from_utf8(clipboard_text)?;
-
-                    match clipboard_cmd.clipboard_program {
-                        None => {
-                            let mut ctx = ClipboardContext::new()?;
-                            ctx.set_contents(clipboard_text_str.to_string())?;
-                        },
-                        Some(clipboard_app) => {
-                            let exec_status = Command::new(&clipboard_app)
-                                .arg(clipboard_text_str)
-                                .status()?;
-                            if !exec_status.success() {
-                                return Err(format!("Could not copy to clipboard with program {}", clipboard_app).into());
-                            }
-                        }
-                    }
-                }
-            } else {
-                return Err(response.into());
-            }
-        },
-        Err(ex) => {
-            return Err(format!("Could not connect to clipboard server at '{}:{}'! {}", server_host, port_number, ex.to_string()).into());
-        }
-    }
-
-    Ok(())
+    common::send_cmd(server_host, server_port.parse::<u16>()?, clipboard_cmd)
 }

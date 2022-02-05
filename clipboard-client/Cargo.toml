@@ -6,9 +6,14 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [[bin]]
-name = "clipboard-client"
-path = "src/main.rs"
+name = "clipboard-cli"
+path = "src/main_cli.rs"
+
+[[bin]]
+name = "clipboard-gui"
+path = "src/main_gui.rs"
 
 [dependencies]
 clap = "2.33.3"
 copypasta = "0.7.1"
+fltk = { version = "1.2.26", features = ["fltk-bundled"] }

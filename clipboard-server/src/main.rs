@@ -3,8 +3,8 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use clap::{App, Arg};
 use std::sync::{Arc, Mutex};
 
-const CMD_READ: &str = "READ:";
-const CMD_WRITE: &str = "WRITE:";
+const CMD_READ  : &str = "READ:";
+const CMD_WRITE : &str = "WRITE:";
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -57,7 +57,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         n
                     },
                     Err(e) => {
-                        return Err(format!("Failed to read from socket; err = {:?}", e.to_string()).into());
+                        return Err(format!("Failed to read from socket; err = {}", e.to_string()).into());
                     }
                 };
 

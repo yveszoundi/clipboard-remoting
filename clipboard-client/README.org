@@ -17,13 +17,21 @@ At the root of this project, open a command prompt and type =cargo build=.
 
 Please refer to the top level folder for desktop or command-line screenshots.
 
-** Display help
+** Desktop user interface
+
+The ideal workflow is interacting with the command-line application via keyboard shortcuts that mimic closely "standard" copy-paste keyboard shortcuts.
+
+[[./images/screenshot_gui.png]]
+
+** Command-line user interface
+
+*** Display help
 
 #+begin_src sh
 ./target/debug/clipboard-client --help
 #+end_src
 
-** Read contents from the clipboard server
+*** Read contents from the clipboard server
 
 In the example below =copytext.sh= is a simple custom shell script piping data over to xclip. Without "hacks", on x11 the clipboard contents are lost if the program exits
 - That applies to CLI applications that exit immediately
@@ -33,7 +41,7 @@ In the example below =copytext.sh= is a simple custom shell script piping data o
   ./target/debug/clipboard-client --clipboard-program /home/vip/copytext.sh
 #+end_src
 
-** Write contents to the clipboard server
+*** Write contents to the clipboard server
 
 #+begin_src sh
   ./target/debug/clipboard-client --command WRITE --text new_clipboard_contents
