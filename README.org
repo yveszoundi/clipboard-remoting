@@ -14,10 +14,10 @@ I leverage this tool mostly within Linux virtual machines running a tiling windo
 
 On the machine where I'm copying text from:
 - =C-c= pushes selected text to the local machine clipboard
-- =C-t Shift-C-c= sends the local machine clipboard contents to the remote clipboard server
+- =C-t Shift-C-c= sends the local machine clipboard contents to the remote clipboard server (in =dwm=)
 
 On the target machine, where I want to paste text:
-- =C-t Shit-v= reads the remote clipboard server contents and puts it in the local machine clipboard
+- =C-t Shit-v= reads the remote clipboard server contents and puts it in the local machine clipboard (in =dwm=)
 - =C-v= pastes the fetched remote clipboard contents
 
 * What is required?
