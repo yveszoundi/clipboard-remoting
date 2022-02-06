@@ -1,4 +1,4 @@
-#+TITLE: clipboard-client README
+#+TITLE: rclip-client README
 
 * What is this?
 
@@ -28,7 +28,7 @@ The ideal workflow is interacting with the command-line application via keyboard
 *** Display help
 
 #+begin_src sh
-./target/debug/clipboard-client --help
+./target/debug/rclip-cli --help
 #+end_src
 
 *** Read contents from the clipboard server
@@ -38,11 +38,17 @@ In the example below =copytext.sh= is a simple custom shell script piping data o
 - I could implement a basic Desktop client, it's not ideal for most workflows within a tiling window manager (heavy on keyboard shortcuts).
 
 #+begin_src sh
-  ./target/debug/clipboard-client --clipboard-program /home/vip/copytext.sh
+  ./target/debug/rclip-cli --clipboard-program /home/vip/copytext.sh
+#+end_src
+
+Here are the contents of the above-mentioned =copytext.sh=.
+
+#+begin_src sh
+  echo -n $1 | xclip -sel clip
 #+end_src
 
 *** Write contents to the clipboard server
 
 #+begin_src sh
-  ./target/debug/clipboard-client --command WRITE --text new_clipboard_contents
+  ./target/debug/rclip-cli --command WRITE --text new_clipboard_contents
 #+end_src

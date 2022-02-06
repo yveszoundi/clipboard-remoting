@@ -1,4 +1,4 @@
-#+TITLE: clipboard-server README
+#+TITLE: rclip-server README
 
 * What is this?
 
@@ -18,7 +18,7 @@ At the root of this project, open a command prompt and type =cargo build=.
 ** Display help
 
 #+begin_src sh
-./target/debug/clipboard-server --help
+./target/debug/rclip-server --help
 #+end_src
 
 ** Starts the server with default options
@@ -26,7 +26,7 @@ At the root of this project, open a command prompt and type =cargo build=.
 The command below starts the server on port =10080= and binds to =127.0.0.1=.
 
 #+begin_src sh
-  ./target/debug/clipboard-server
+  ./target/debug/rclip-server
 #+end_src
 
 
@@ -35,5 +35,5 @@ The command below starts the server on port =10080= and binds to =127.0.0.1=.
 The command below starts the server on port =10000= and binds to all network interfaces (=0.0.0.0=).
 
 #+begin_src sh
-  ./target/debug/clipboard-server --host 0.0.0.0 --port 10000
+  ./target/debug/rclip-server --host 0.0.0.0 --port 10000
 #+end_src

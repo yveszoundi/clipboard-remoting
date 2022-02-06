@@ -3,7 +3,10 @@
 * What is this?
 
 A *quick and very dirty* clipboard exchange solution over a network, built out of unwarranted frustration.
+- I wasn't able to get [[https://en.wikipedia.org/wiki/QEMU][QEMU]] [[https://gitlab.freedesktop.org/spice/spice/-/issues/39][spice support]] ready to go for MacOS after few hours
+- Even though, I managed later to fix =spice related= compilation issues, I don't think that I'll enable it or change my current workflow
 
+This is more or less how it works
 [[./images/diagram.png]]
 
 *Please do not use for anything sensitive!*

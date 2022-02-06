@@ -5,7 +5,7 @@ use copypasta::{ClipboardContext, ClipboardProvider};
 mod common;
 
 fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
-    let app = App::new("clipboard-client")
+    let app = App::new("rclip-cli")
         .version("0.0.1")
         .author("Yves Zoundi")
         .about("Clipboard client")

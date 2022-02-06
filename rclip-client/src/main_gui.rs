@@ -14,7 +14,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let mut wind = window::Window::default()
         .with_size(210, 150)
         .center_screen()
-        .with_label("Clipboard-remoting");
+        .with_label("rclip-gui");
     let wind_clone = wind.clone();
     let wind_copy = wind.clone();
     wind.make_resizable(true);
@@ -28,10 +28,14 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     input_row.set_spacing(size_pack_spacing);
     let input_host = Rc::new(RefCell::new(input::Input::default().with_size(100, 20)));
     let input_host_copy = input_host.clone();
+    input_host.borrow_mut().set_tooltip("IP address to bind to");
     input_host.borrow_mut().set_value(common::DEFAULT_SERVER_HOST_STR);
-    let input_port = Rc::new(RefCell::new(input::Input::default().with_size(60, 20)));
+
+    let input_port = Rc::new(RefCell::new(input::Input::default().with_size(60, 20)));    
     let input_port_copy = input_port.clone();
+    input_port.borrow_mut().set_tooltip("IP address to bind to");
     input_port.borrow_mut().set_value(common::DEFAULT_SERVER_PORT_STR);
+
     input_row.end();
 
     let mut button_row = group::Pack::default()

@@ -8,7 +8,7 @@ const CMD_WRITE : &str = "WRITE:";
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let app = App::new("clipboard-server")
+    let app = App::new("rclip-server")
         .version("0.0.1")
         .author("Yves Zoundi")
         .about("Clipboard server")
@@ -43,6 +43,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let con_string = format!("{}:{}", host, port);
     let listener = TcpListener::bind(con_string).await?;
     let clipboard = Arc::new(Mutex::new("".to_string()));
+
+    println!("Starting server on {} with port {}.", host, port);
 
     loop {
         let (mut socket, _) = listener.accept().await?;
