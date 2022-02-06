@@ -19,7 +19,7 @@ Please refer to the top level folder for desktop or command-line screenshots.
 
 ** Desktop user interface
 
-*This exist merely for very occasional usage under MacOS, where I do not run a tiling window manager*.
+*This merely exists for very occasional usage under MacOS, where I do not run a tiling window manager*.
 The ideal workflow is interacting with the command-line application via keyboard shortcuts that mimic closely "standard" copy-paste keyboard shortcuts.
 
 [[./images/screenshot_gui.png]]
