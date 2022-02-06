@@ -6,8 +6,9 @@ This is the command-line client and it's been tested under Linux and MacOs.
 
 * What is required?
 
-- *Operating System*: Linux or MacOS. Windows and BSD systems haven't been tested yet.
-- A rust compiler and the cargo build tool
+- *Operating System*: Linux, MacOS. Minimal testing for Windows so far and pending checks for BSD distributions.
+- *Build Tools*: A rust compiler and the cargo build tool
+- *Tools and Libraries under Linux*: curl, pango-dev, cairo-dev, libXcursor-dev (TBD update this list...)
 
 * How to build this?
 
@@ -20,7 +21,7 @@ Please refer to the top level folder for desktop or command-line screenshots.
 ** Desktop user interface
 
 *This merely exists for very occasional usage under MacOS, where I do not run a tiling window manager*.
-The ideal workflow is interacting with the command-line application via keyboard shortcuts that mimic closely "standard" copy-paste keyboard shortcuts.
+The ideal workflow is interacting with the command-line version via keyboard shortcuts.
 
 [[./images/screenshot_gui.png]]
 
@@ -29,17 +30,17 @@ The ideal workflow is interacting with the command-line application via keyboard
 *** Display help
 
 #+begin_src sh
-./target/debug/rclip-cli --help
+./target/debug/rclip-client-cli --help
 #+end_src
 
 *** Read contents from the clipboard server
 
-In the example below =copytext.sh= is a simple custom shell script piping data over to xclip. Without "hacks", on x11 the clipboard contents are lost if the program exits
-- That applies to CLI applications that exit immediately
-- I could implement a basic Desktop client, it's not ideal for most workflows within a tiling window manager (heavy on keyboard shortcuts).
+*Under Linux, an auxiliary program is required* to ensure that the clipboard contents are persisted after the command-line program exists (xclip, xsel, etc.).
+- For Linux, the auxiliary program *must be wrapped* into a script that accepts the clipboard contents as *single argument*. The same might be required under other operating systems running xorg/x11 but this hasn't been tested yet
+- On MacOS, even when the command-line app terminates, the clipboard isn't cleared
 
 #+begin_src sh
-  ./target/debug/rclip-cli --clipboard-program /home/vip/copytext.sh
+  ./target/debug/rclip-client-cli --clipboard-program /home/vip/copytext.sh
 #+end_src
 
 Here are the contents of the above-mentioned =copytext.sh=.
@@ -51,5 +52,5 @@ Here are the contents of the above-mentioned =copytext.sh=.
 *** Write contents to the clipboard server
 
 #+begin_src sh
-  ./target/debug/rclip-cli --command WRITE --text new_clipboard_contents
+  ./target/debug/rclip-client-cli --command WRITE --text new_clipboard_contents
 #+end_src
