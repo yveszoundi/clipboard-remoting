@@ -2,7 +2,6 @@ use std::error::Error;
 use std::net::TcpStream;
 use std::io::{Read, Write, BufReader};
 use std::str::from_utf8;
-use copypasta::{ClipboardContext, ClipboardProvider};
 use std::process::Command;
 
 pub const DEFAULT_SERVER_HOST_STR: &str = "127.0.0.1";
@@ -28,9 +27,55 @@ impl std::fmt::Display for ClipboardCmd {
     }
 }
 
-pub fn local_clipboard_contents() -> Result<String, Box<dyn Error + Send + Sync>> {
+#[cfg(not(any(target_os = "windows", target_os = "macos")))]
+pub fn get_clipboard_contents(clipboard_app_opt: Option<&str>) -> Result<String, Box<dyn Error + Send + Sync>> {
+    if let Some(clipboard_app) = clipboard_app_opt {
+        let output = Command::new(&clipboard_app).output()?;
+
+        if !output.status.success() {
+            return Err(format!("Could acquire clipboard contents with program {}", clipboard_app).into());
+        }
+
+        let output_data = output.stdout;
+        let clipboard_text_str = std::str::from_utf8(&output_data)?;
+
+        Ok(clipboard_text_str.to_string())
+    } else {
+        return Err("The clipboard auxiliary program is required!".into());
+    }
+}
+
+#[cfg(any(target_os = "windows", target_os = "macos"))]
+pub fn get_clipboard_contents(_: Option<&str>) -> Result<String, Box<dyn Error + Send + Sync>> {
+    use copypasta::{ClipboardContext, ClipboardProvider};
     let mut ctx = ClipboardContext::new()?;
     Ok(format!("{}", ctx.get_contents()?))
+}
+
+#[cfg(any(target_os = "windows", target_os = "macos"))]
+pub fn set_clipboard_contents(clipboard_text: String, _: Option<String>) -> Result<(), Box<dyn Error + Send + Sync>> {
+    use copypasta::{ClipboardContext, ClipboardProvider};
+
+    let mut ctx = ClipboardContext::new()?;
+    ctx.set_contents(clipboard_text.to_string())?;
+
+    Ok(())
+}
+
+#[cfg(not(any(target_os = "windows", target_os = "macos")))]
+pub fn set_clipboard_contents(clipboard_text: String, clipboard_app_opt: Option<String>) -> Result<(), Box<dyn Error + Send + Sync>> {
+    if let Some(clipboard_app) = clipboard_app_opt {
+        let exec_status = Command::new(&clipboard_app)
+            .arg(clipboard_text)
+            .status()?;
+        if !exec_status.success() {
+            return Err(format!("Could not set clipboard contents with program {}", clipboard_app).into());
+        }
+
+        Ok(())
+    } else {
+        return Err("The clipboard auxiliary program is required!".into());
+    }
 }
 
 pub fn send_cmd(server_host: &str, port_number: u16, clipboard_cmd: ClipboardCmd) -> Result<(), Box<dyn Error + Send + Sync>> {
@@ -53,21 +98,7 @@ pub fn send_cmd(server_host: &str, port_number: u16, clipboard_cmd: ClipboardCmd
                 if input.starts_with("READ:") {
                     let clipboard_text = &buffer["SUCCESS:".len()..];
                     let clipboard_text_str = std::str::from_utf8(clipboard_text)?;
-
-                    match clipboard_cmd.clipboard_program {
-                        None => {
-                            let mut ctx = ClipboardContext::new()?;
-                            ctx.set_contents(clipboard_text_str.to_string())?;
-                        },
-                        Some(clipboard_app) => {
-                            let exec_status = Command::new(&clipboard_app)
-                                .arg(clipboard_text_str)
-                                .status()?;
-                            if !exec_status.success() {
-                                return Err(format!("Could not copy to clipboard with program {}", clipboard_app).into());
-                            }
-                        }
-                    }
+                    set_clipboard_contents(clipboard_text_str.to_string(), clipboard_cmd.clipboard_program)?;
                 }
             } else {
                 return Err(response.into());

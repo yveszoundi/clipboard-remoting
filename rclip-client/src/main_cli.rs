@@ -1,6 +1,5 @@
 use clap::{App, Arg};
 use std::error::Error;
-use copypasta::{ClipboardContext, ClipboardProvider};
 
 mod common;
 
@@ -12,7 +11,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         .arg(
             Arg::with_name("clipboard-program")
                 .long("clipboard-program")
-                .help("External clipboard application such as xclip (i.e. /usr/bin/xclip).")
+                .help("External clipboard wrapper around applications such as xclip (i.e. /usr/bin/xclip). For the READ command this should accept a single argument which is the text to persist to the clipboard. For the WRITE command this should not require any argument and just retrieve local clipboard contents.")
                 .required(false)
                 .takes_value(true)
         ).arg(
@@ -63,16 +62,18 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         None => "READ"
     };
 
-    let mut cmd_text_opt = if let Some(xx) = run_matches.value_of("text") {
+    let cmd_text_opt = if let Some(xx) = run_matches.value_of("text") {
         Some(xx.to_string())
     } else {
         None
-    };
+    };    
 
-    if proposed_cmd == "WRITE" && cmd_text_opt.is_none() {
-        let mut ctx = ClipboardContext::new()?;
-        let v = format!("{}", ctx.get_contents()?);
-        cmd_text_opt = Some(v);
+    if cfg!(any(target_os="freebsd", target_os="netbsd", target_os="openbsd", )) {
+        if clipboard_program.is_none() {
+            if cmd_text_opt.is_none() && proposed_cmd == "READ" {
+                return Err("The clipboard program argument is required for BSD platforms.".into());                
+            }
+        }
     }
 
     let clipboard_cmd = match proposed_cmd {
@@ -91,7 +92,13 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
                 name: "WRITE".to_string(),
                 text: match cmd_text_opt {
                     Some(x) => Some(x.to_string()),
-                    _ => None
+                    _ => {
+                        if let Ok(clipboard_contents) = common::get_clipboard_contents(clipboard_program) {
+                            Some(clipboard_contents)
+                        } else {
+                            return Err("Could not acquire clipboard contents".into())
+                        }
+                    }
                 },
                 clipboard_program: match clipboard_program {
                     Some(x) => Some(x.to_string()),

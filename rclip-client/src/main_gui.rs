@@ -31,7 +31,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     input_host.borrow_mut().set_tooltip("IP address to bind to");
     input_host.borrow_mut().set_value(common::DEFAULT_SERVER_HOST_STR);
 
-    let input_port = Rc::new(RefCell::new(input::Input::default().with_size(60, 20)));    
+    let input_port = Rc::new(RefCell::new(input::Input::default().with_size(60, 20)));
     let input_port_copy = input_port.clone();
     input_port.borrow_mut().set_tooltip("IP address to bind to");
     input_port.borrow_mut().set_value(common::DEFAULT_SERVER_PORT_STR);
@@ -67,7 +67,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
             let port_text = input_port.borrow().value();
             let host_text = input_host.borrow().value();
 
-            if let Ok(clipboard_contents) = common::local_clipboard_contents() {
+            if let Ok(clipboard_contents) = common::get_clipboard_contents(None) {
                 let cmd_text_opt = Some(clipboard_contents);
 
                 if let Err(ex) = send_cmd(host_text, port_text, "WRITE", cmd_text_opt) {
