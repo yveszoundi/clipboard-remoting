@@ -2,7 +2,6 @@ use std::error::Error;
 use std::net::TcpStream;
 use std::io::{Read, Write, BufReader};
 use std::str::from_utf8;
-use std::process::Command;
 
 pub const DEFAULT_SERVER_HOST_STR: &str = "127.0.0.1";
 pub const DEFAULT_SERVER_PORT_STR: &str = "10080";
@@ -29,6 +28,8 @@ impl std::fmt::Display for ClipboardCmd {
 
 #[cfg(not(any(target_os = "windows", target_os = "macos")))]
 pub fn get_clipboard_contents(clipboard_app_opt: Option<&str>) -> Result<String, Box<dyn Error + Send + Sync>> {
+    use std::process::Command;
+
     if let Some(clipboard_app) = clipboard_app_opt {
         let output = Command::new(&clipboard_app).output()?;
 
@@ -64,6 +65,8 @@ pub fn set_clipboard_contents(clipboard_text: String, _: Option<String>) -> Resu
 
 #[cfg(not(any(target_os = "windows", target_os = "macos")))]
 pub fn set_clipboard_contents(clipboard_text: String, clipboard_app_opt: Option<String>) -> Result<(), Box<dyn Error + Send + Sync>> {
+    use std::process::Command;
+
     if let Some(clipboard_app) = clipboard_app_opt {
         let exec_status = Command::new(&clipboard_app)
             .arg(clipboard_text)

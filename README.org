@@ -39,12 +39,9 @@ I needed a clipboard solution for multiple machines over a network (mostly a Mac
 
 * What is next?
 
-I do not have any immediate plans for this tool, as it fits my main use cases:
-- Copy small configurations for text files between a host and/or several guest virtual machines
-- Copy URLs around
-
-I've been thinking about a virtual machine with networking disabled for managing secrets (passwords, keys, etc.), on machines where I don't have Qubes OS.
-- Encryption will likely be required for data transfer SSL and probably something else wrapped into base64
-- Avoid piping data to auxiliary programs such as [[https://opensource.com/article/19/7/xclip][xclip]], [[https://github.com/tektronix/numconverter/pull/22/files#diff-42cb6807ad74b3e201c5a7ca98b911c5fa08380e942be6e4ac5807f8377f87fcR144][x11 hacks]] to get a persistent keyboard [[https://stackoverflow.com/questions/60137686/how-to-store-text-on-the-system-clipboard-after-application-has-quit-using-gtk3][without many extra libraries]]. 
+- [ ] Standard message format (JSON, XML, etc.)
+- [ ] Standard communication protocol (RPC, REST, etc.)
+- [ ] Rethink communication model (agent or actor, vs pulling data on demand)
+- [ ] Rethink the main purpose of this project (Passing simple data around or other features such as clipboard history, etc.) 
   
   
