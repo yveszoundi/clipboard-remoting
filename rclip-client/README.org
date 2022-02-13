@@ -12,7 +12,19 @@ This is the command-line client and it's been tested under Linux and MacOs.
 
 * How to build this?
 
-At the root of this project, open a command prompt and type =cargo build=.
+** MacOS, Linux and Windows
+
+#+begin_src sh
+  cargo build
+#+end_src
+
+** FreeBSD, NetBSD and OpenBSD
+
+The GUI is not available for BSD operating systems (FLTK UI toolkit compilation issues).
+
+#+begin_src sh
+  cargo build --bin rclip-client-cli
+#+end_src
 
 * How to run this?
 
@@ -35,22 +47,21 @@ The ideal workflow is interacting with the command-line version via keyboard sho
 
 *** Read contents from the clipboard server
 
-*Under Linux, an auxiliary program is required* to ensure that the clipboard contents are persisted after the command-line program exists (xclip, xsel, etc.).
-- For Linux, the auxiliary program *must be wrapped* into a script that accepts the clipboard contents as *single argument*. The same might be required under other operating systems running xorg/x11 but this hasn't been tested yet
+*Under Linux, an auxiliary program is required* to ensure that the clipboard contents are persisted after the command-line program exists ([[https://linux.die.net/man/1/xclip][xclip]], [[https://linux.die.net/man/1/xsel][xsel]], etc.).
+- For Linux and BSD, the auxiliary program *must be wrapped* into a script that accepts the clipboard contents as *single argument*. The same might be required under other operating systems running xorg/x11 but this hasn't been tested yet
 - On MacOS, even when the command-line app terminates, the clipboard isn't cleared
 
-#+begin_src sh
-  ./target/debug/rclip-client-cli --clipboard-program /home/vip/copytext.sh
-#+end_src
-
-Here are the contents of the above-mentioned =copytext.sh=.
-
-#+begin_src sh
-  echo -n $1 | xclip -sel clip
-#+end_src
+  For sample wrapper scripts under Linux or BSD, [[https://github.com/yveszoundi/vms-setup/tree/master/skeletons/.config/clipboard][please checkout this link]].: the =--clipboard-program= optional parameter value is set to a wrapper around =xclip=.
 
 *** Write contents to the clipboard server
+
+**** With specific text
 
 #+begin_src sh
   ./target/debug/rclip-client-cli --command WRITE --text new_clipboard_contents
 #+end_src
+
+**** With data from the clipboard
+
+For sample wrapper scripts under Linux or BSD, [[https://github.com/yveszoundi/vms-setup/tree/master/skeletons/.config/clipboard][please checkout this link]].: the =--clipboard-program= optional parameter value is set to a wrapper around =xclip=.
+
