@@ -5,6 +5,7 @@ use std::str::from_utf8;
 
 pub const DEFAULT_SERVER_HOST_STR: &str = "127.0.0.1";
 pub const DEFAULT_SERVER_PORT_STR: &str = "10080";
+const CLIPBOARD_WAIT_TIMER: std::time::Duration = std::time::Duration::from_secs(1);
 
 pub struct ClipboardCmd {
     pub name: String,
@@ -34,7 +35,7 @@ pub fn get_clipboard_contents(clipboard_app_opt: Option<&str>) -> Result<String,
         let output = Command::new(&clipboard_app).output()?;
 
         if !output.status.success() {
-            return Err(format!("Could acquire clipboard contents with program {}", clipboard_app).into());
+            return Err(format!("Could acquire clipboard contents with program {}!", clipboard_app).into());
         }
 
         let output_data = output.stdout;
@@ -50,6 +51,7 @@ pub fn get_clipboard_contents(clipboard_app_opt: Option<&str>) -> Result<String,
 pub fn get_clipboard_contents(_: Option<&str>) -> Result<String, Box<dyn Error + Send + Sync>> {
     use copypasta::{ClipboardContext, ClipboardProvider};
     let mut ctx = ClipboardContext::new()?;
+
     Ok(format!("{}", ctx.get_contents()?))
 }
 
@@ -59,6 +61,9 @@ pub fn set_clipboard_contents(clipboard_text: String, _: Option<String>) -> Resu
 
     let mut ctx = ClipboardContext::new()?;
     ctx.set_contents(clipboard_text.to_string())?;
+
+    std::thread::sleep(CLIPBOARD_WAIT_TIMER);
+    ctx.get_contents()?;
 
     Ok(())
 }
@@ -72,13 +77,13 @@ pub fn set_clipboard_contents(clipboard_text: String, clipboard_app_opt: Option<
             .arg(clipboard_text)
             .status()?;
         if !exec_status.success() {
-            return Err(format!("Could not set clipboard contents with program {}", clipboard_app).into());
+            return Err(format!("Could not set clipboard contents with program {}!", clipboard_app).into());
         }
 
-        Ok(())
-    } else {
-        return Err("The clipboard auxiliary program is required!".into());
+        return Ok(())
     }
+    
+    Err("The clipboard auxiliary program is required!".into())
 }
 
 pub fn send_cmd(server_host: &str, port_number: u16, clipboard_cmd: ClipboardCmd) -> Result<(), Box<dyn Error + Send + Sync>> {
@@ -91,7 +96,6 @@ pub fn send_cmd(server_host: &str, port_number: u16, clipboard_cmd: ClipboardCmd
 
             let mut reader =BufReader::new(&stream);
             let mut buffer: Vec<u8> = Vec::new();
-
             reader.read_to_end(&mut buffer)?;
 
             let buffer = &buffer.into_iter().filter(|&i| i != 0).collect::<Vec<u8>>();

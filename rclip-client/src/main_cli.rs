@@ -4,14 +4,14 @@ use std::error::Error;
 mod common;
 
 fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
-    let app = App::new("rclip-cli")
+    let app = App::new("rclip-client-cli")
         .version("0.0.1")
         .author("Yves Zoundi")
         .about("Clipboard client")
         .arg(
             Arg::with_name("clipboard-program")
                 .long("clipboard-program")
-                .help("External clipboard wrapper around applications such as xclip (i.e. /usr/bin/xclip). For the READ command this should accept a single argument which is the text to persist to the clipboard. For the WRITE command this should not require any argument and just retrieve local clipboard contents.")
+                .help("External clipboard wrapper accepting a single input argument.")
                 .required(false)
                 .takes_value(true)
         ).arg(
