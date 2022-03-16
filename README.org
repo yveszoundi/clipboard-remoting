@@ -3,8 +3,8 @@
 * What is this?
 
 A *quick and very dirty* clipboard exchange solution over a network, built out of unwarranted frustration.
-- I wasn't able to get [[https://en.wikipedia.org/wiki/QEMU][QEMU]] [[https://gitlab.freedesktop.org/spice/spice/-/issues/39][spice support]] ready to go for MacOS after few hours
-- Even though, I managed later to fix =spice related= compilation issues, I don't think that I'll enable it or change my current workflow
+- I wasn't able to get [[https://en.wikipedia.org/wiki/QEMU][QEMU]] [[https://gitlab.freedesktop.org/spice/spice/-/issues/39][spice support]] ready to go for MacOS after few hours, nor did I want to implement more involved solutions
+- Even though, I managed later to fix =spice related= compilation issues, I don't think that I'll enable spice support or change my current workflow
 
 This is more or less how it works
 [[./images/diagram.png]]
@@ -21,27 +21,23 @@ On the machine where I'm copying text from:
 
 On the target machine, where I want to paste text:
 - =C-t Shit-v= reads the remote clipboard server contents and puts it in the local machine clipboard (in =dwm=)
-- =C-v= pastes the fetched remote clipboard contents
+- =C-v= pastes the newly fetched remote clipboard contents
 
 * What is required?
 
-- *Operating System*: Linux or MacOS. Windows and BSD systems haven't been tested yet.
+- *Operating System*: Linux, MacOS, Windows, BSD
 - A rust compiler and the cargo build tool
 
-* Why this?
+  /Please note that the graphical user interface doesn't build under BSD yet, you can only use the command-line client/.
 
-I needed a clipboard solution for multiple machines over a network (mostly a MacOS host and several UNIX/Linux virtual machines):
-- I didn't want anything fancy with SSH ([[https://stackoverflow.com/questions/1152362/how-to-send-data-to-local-clipboard-from-a-remote-ssh-session][reverse SSH tunnels]], [[https://www.xquartz.org/][XQuartz]], etc.):
-  - I do not want to transfer simple text over SSH
-  - I only run an SSH server on some of the guest virtual machines but "almost never" on the host machine itself
-- I wasn't able to get [[https://en.wikipedia.org/wiki/QEMU][QEMU]] [[https://gitlab.freedesktop.org/spice/spice/-/issues/39][spice support]] ready to go for MacOS after few hours.
-
-
-* What is next?
+* What is potentially next?
 
 - [ ] Standard message format (JSON, XML, etc.)
 - [ ] Standard communication protocol (RPC, REST, etc.)
-- [ ] Rethink communication model (agent or actor, vs pulling data on demand)
-- [ ] Rethink the main purpose of this project (Passing simple data around or other features such as clipboard history, etc.) 
+- [ ] SSL support
+- [ ] Rethink communication model (agent, actor)
+- [ ] Rethink the main purpose of this project
+  - Passing simple plain text?
+  - More complete features such as clipboard history, etc.
   
   

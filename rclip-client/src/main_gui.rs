@@ -3,7 +3,7 @@ use std::rc::Rc;
 use std::cell::RefCell;
 
 use fltk::{
-    app, button, prelude::*, group, window, input, dialog
+    app, button, prelude::*, group, window, input, dialog, enums
 };
 
 mod common;
@@ -63,9 +63,12 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     }
 
     button_send.set_callback({
+        let c_input_host = input_host.clone();
+        let c_input_port = input_port.clone();
+
         move |_| {
-            let port_text = input_port.borrow().value();
-            let host_text = input_host.borrow().value();
+            let port_text = c_input_port.borrow().value();
+            let host_text = c_input_host.borrow().value();
 
             if let Ok(clipboard_contents) = common::get_clipboard_contents(None) {
                 let cmd_text_opt = Some(clipboard_contents);
@@ -91,6 +94,31 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     });
 
     button_row.end();
+
+    wind.handle({
+        let mut c_input_row = input_row.clone();
+        let c_input_host = input_host.clone();
+        let c_input_port = input_port.clone();
+
+        move |f, ev| match ev {
+            enums::Event::Resize => {
+                if let Ok(_) = app::lock() {
+                    let margin = c_input_row.x() as f64;
+                    let w = (((f.width() as f64 - (margin * 2.0)) / 2.0) - (size_pack_spacing as f64 / 2.0)) as i32;
+                    let row_width = (f.width() - margin as i32) as i32;
+                    c_input_row.set_size(row_width, 40);
+                    c_input_host.borrow_mut().set_size(w, 20);
+                    c_input_port.borrow_mut().set_size(w, 20);
+                    app::unlock();
+
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    });
 
     wind.end();
     wind.show();
