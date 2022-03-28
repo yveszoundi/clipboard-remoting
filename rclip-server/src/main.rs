@@ -1,5 +1,5 @@
 use tokio::net::TcpListener;
-use tokio::io::AsyncWriteExt;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use clap::{App, Arg};
 use std::sync::{Arc, Mutex};
 
@@ -48,50 +48,35 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     loop {
         let (mut socket, _) = listener.accept().await?;
-        let clipboard_copy  = clipboard.clone();
+        let clipboard_copy = clipboard.clone();
 
         tokio::spawn(async move {
-            let (reader, mut writer) = socket.split();
-            let mut request = String::new();
-            let mut err_msg = String::new();
+            let mut buf_vec = vec![0; 4096];
 
             loop {
-                let mut buf = [0; 1024];
-
-                match reader.try_read(&mut buf) {
+                match socket.read(&mut buf_vec).await {
                     Ok(n) => {
-
-                        if n == 0 {
-                            break;
-                        }
-
-                        let bytes = &buf[0..n];
-
-                        match &String::from_utf8(bytes.to_vec()) {
-                            Ok(data) => {
-                                request.push_str(data);
-                                n
-                            },
-                            Err(ex) => {
-                                err_msg = format!("ERROR:Cannot decode request. {}.", ex.to_string());
-                                0
-                            }
-                        }
+                        n
                     },
-                    Err(_) => {
-                        break;
+                    Err(e) => {
+                        return Err(format!("Failed to read from socket; err = {}", e.to_string()).into());
                     }
                 };
-            }
 
-            if err_msg.len() == 0 {
-                let response = handle_message(&request, clipboard_copy);
+                buf_vec = buf_vec.into_iter().filter(|&i| i != 0).collect::<Vec<u8>>();
 
-                if let Err(e) = writer.write_all(response.as_bytes()).await {
-                    return Err(e.to_string());
+                match std::str::from_utf8(&buf_vec)  {
+                    Ok(request) => {
+                        let response = handle_message(request, clipboard_copy);
+
+                        if let Err(e) = socket.write_all(response.as_bytes()).await {
+                            return Err(e.to_string());
+                        }
+                    },
+                    Err(e) => return Err(format!("Could not read request data. {}", e.to_string()))
                 }
-            } else {
-                return Err(err_msg);
+
+                break;
             }
 
             Ok(())
