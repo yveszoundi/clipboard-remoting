@@ -1,5 +1,5 @@
 use tokio::net::TcpListener;
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::io::AsyncWriteExt;
 use clap::{App, Arg};
 use std::sync::{Arc, Mutex};
 
@@ -48,35 +48,50 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     loop {
         let (mut socket, _) = listener.accept().await?;
-        let clipboard_copy = clipboard.clone();
+        let clipboard_copy  = clipboard.clone();
 
         tokio::spawn(async move {
-            let mut buf_vec = vec![0; 4096];
+            let (reader, mut writer) = socket.split();
+            let mut request = String::new();
+            let mut err_msg = String::new();
 
             loop {
-                match socket.read(&mut buf_vec).await {
+                let mut buf = [0; 1024];
+
+                match reader.try_read(&mut buf) {
                     Ok(n) => {
-                        n
-                    },
-                    Err(e) => {
-                        return Err(format!("Failed to read from socket; err = {}", e.to_string()).into());
-                    }
-                };
 
-                buf_vec = buf_vec.into_iter().filter(|&i| i != 0).collect::<Vec<u8>>();
+                        if n == 0 {
+                            break;
+                        }
 
-                match std::str::from_utf8(&buf_vec)  {
-                    Ok(request) => {
-                        let response = handle_message(request, clipboard_copy);
+                        let bytes = &buf[0..n];
 
-                        if let Err(e) = socket.write_all(response.as_bytes()).await {
-                            return Err(e.to_string());
+                        match &String::from_utf8(bytes.to_vec()) {
+                            Ok(data) => {
+                                request.push_str(data);
+                                n
+                            },
+                            Err(ex) => {
+                                err_msg = format!("ERROR:Cannot decode request. {}.", ex.to_string());
+                                0
+                            }
                         }
                     },
-                    Err(e) => return Err(format!("Could not read request data. {}", e.to_string()))
-                }
+                    Err(_) => {
+                        break;
+                    }
+                };
+            }
 
-                break;
+            if err_msg.len() == 0 {
+                let response = handle_message(&request, clipboard_copy);
+
+                if let Err(e) = writer.write_all(response.as_bytes()).await {
+                    return Err(e.to_string());
+                }
+            } else {
+                return Err(err_msg);
             }
 
             Ok(())

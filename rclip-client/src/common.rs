@@ -1,7 +1,6 @@
 use std::error::Error;
 use std::net::TcpStream;
 use std::io::{Read, Write, BufReader};
-use std::str::from_utf8;
 
 pub const DEFAULT_SERVER_HOST_STR: &str = "127.0.0.1";
 pub const DEFAULT_SERVER_PORT_STR: &str = "10080";
@@ -82,7 +81,7 @@ pub fn set_clipboard_contents(clipboard_text: String, clipboard_app_opt: Option<
 
         return Ok(())
     }
-    
+
     Err("The clipboard auxiliary program is required!".into())
 }
 
@@ -94,18 +93,15 @@ pub fn send_cmd(server_host: &str, port_number: u16, clipboard_cmd: ClipboardCmd
             let request = input.as_bytes();
             stream.write(request)?;
 
-            let mut reader =BufReader::new(&stream);
-            let mut buffer: Vec<u8> = Vec::new();
-            reader.read_to_end(&mut buffer)?;
+            let mut reader = BufReader::new(&stream);
 
-            let buffer = &buffer.into_iter().filter(|&i| i != 0).collect::<Vec<u8>>();
-            let response = from_utf8(buffer)?;
+            let mut response = String::new();
+            reader.read_to_string(&mut response)?;
 
             if response.starts_with("SUCCESS:") {
                 if input.starts_with("READ:") {
-                    let clipboard_text = &buffer["SUCCESS:".len()..];
-                    let clipboard_text_str = std::str::from_utf8(clipboard_text)?;
-                    set_clipboard_contents(clipboard_text_str.to_string(), clipboard_cmd.clipboard_program)?;
+                    let clipboard_text: String = response.chars().skip("SUCCESS:".len()).collect();
+                    set_clipboard_contents(clipboard_text, clipboard_cmd.clipboard_program)?;
                 }
             } else {
                 return Err(response.into());
