@@ -41,17 +41,27 @@ The ideal workflow is interacting with the command-line version via keyboard sho
 
 *** Display help
 
+Pass the =--help= flag for an exhaustive list of command-line options
+
 #+begin_src sh
 ./target/debug/rclip-client-cli --help
 #+end_src
 
 *** Read contents from the clipboard server
 
-*Under Linux, an auxiliary program is required* to ensure that the clipboard contents are persisted after the command-line program exists ([[https://linux.die.net/man/1/xclip][xclip]], [[https://linux.die.net/man/1/xsel][xsel]], etc.).
-- For Linux and BSD, the auxiliary program *must be wrapped* into a script that accepts the clipboard contents as *single argument*. The same might be required under other operating systems running xorg/x11 but this hasn't been tested yet
-- On MacOS, even when the command-line app terminates, the clipboard isn't cleared
+Without any arguments, the following flags are defaulted.
 
-  For sample wrapper scripts under Linux or BSD, [[https://github.com/yveszoundi/vms-setup/tree/master/skeletons/.config/clipboard][please checkout this link]].: the =--clipboard-program= optional parameter value is set to a wrapper around =xclip=.
+|-----------------+---------------|
+| Flag            | Default Value |
+|-----------------+---------------|
+| =--command=     | =READ=        |
+| =--server-host= | =127.0.0.1=   |
+| =--server-port= | =10080=       |
+|-----------------+---------------|
+
+#+begin_src sh
+./target/debug/rclip-client-cli
+#+end_src
 
 *** Write contents to the clipboard server
 
@@ -63,5 +73,7 @@ The ideal workflow is interacting with the command-line version via keyboard sho
 
 **** With data from the clipboard
 
-For sample wrapper scripts under Linux or BSD, [[https://github.com/yveszoundi/vms-setup/tree/master/skeletons/.config/clipboard][please checkout this link]].: the =--clipboard-program= optional parameter value is set to a wrapper around =xclip=.
+#+begin_src sh
+  ./target/debug/rclip-client-cli --command WRITE
+#+end_src
 
