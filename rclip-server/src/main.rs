@@ -59,9 +59,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 let mut buf_vec = vec![0; BUFFER_CAP];
                 let bytes_read = match reader.read(&mut buf_vec).await {
                     Ok(n) => {
-                        let data = String::from_utf8(buf_vec[0..n].to_vec());
-                        request.extend(data);
-                        n
+                        match String::from_utf8(buf_vec[0..n].to_vec()) {
+                            Ok(data) => {
+                                request.push_str(&data);
+                                n
+                            },
+                            Err(e) => {
+                                return Err(format!("Failed to decode response; err = {}", e.to_string()).into());
+                            }
+                        }
                     },
                     Err(e) => {
                         return Err(format!("Failed to read from socket; err = {}", e.to_string()).into());

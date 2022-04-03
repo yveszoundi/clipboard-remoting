@@ -2,9 +2,9 @@
 
 * What is this?
 
-A *quick and very dirty* clipboard exchange solution over a network, built out of unwarranted frustration.
+A *quick and very dirty* solution for sharing text over a network, in a multi-virtual-machine environment scenario.
 - I wasn't able to get [[https://en.wikipedia.org/wiki/QEMU][QEMU]] [[https://gitlab.freedesktop.org/spice/spice/-/issues/39][spice support]] ready to go for MacOS after few hours, nor did I want to implement more involved solutions
-- Even though, I managed later to fix =spice related= compilation issues, I don't think that I'll enable spice support or change my current workflow
+- Even though, I later managed to fix =spice support= compilation issues, I don't think that I'll change my current workflow
 
 This is more or less how it works
 [[./images/diagram.png]]
@@ -32,12 +32,12 @@ On the target machine, where I want to paste text:
 
 * What is potentially next?
 
-- [ ] Standard message format (JSON, XML, etc.)
-- [ ] Standard communication protocol (RPC, REST, etc.)
-- [ ] SSL support
+- [ ] Using a standard message format (JSON, XML, etc.)
+- [ ] Leveraging a standard communication approach (RPC, REST, etc.)
+- [ ] Add SSL support
 - [ ] Rethink communication model (agent, actor)
 - [ ] Rethink the main purpose of this project
-  - Passing simple plain text?
-  - More complete features such as clipboard history, etc.
+  - Passing only plain text forever?
+  - Adding other features such as clipboard history, etc.
   
   
