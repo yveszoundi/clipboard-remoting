@@ -7,8 +7,9 @@ This is the command-line client and it's been tested under Linux and MacOs.
 * What is required?
 
 - *Operating System*: Linux, MacOS. Minimal testing for Windows so far and pending checks for BSD distributions.
-- *Build Tools*: A rust compiler and the cargo build tool
-- *Tools and Libraries under Linux*: curl, pango-dev, cairo-dev, libXcursor-dev (TBD update this list...)
+- *Build Tools*: A rust compiler and the cargo build tool.
+- *Tools and Libraries under Linux*: curl, pango-dev, cairo-dev, libXcursor-dev (TBD update this list...).
+- *X11* under Linux and BSD platforms: specialized code was added for [[https://unix.stackexchange.com/questions/450508/how-to-keep-clipboard-content-from-xterm-after-closing-it-like-firefox-or-le][clipboard persistence]] mitigation.
 
 * How to build this?
 
