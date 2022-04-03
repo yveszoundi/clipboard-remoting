@@ -2,7 +2,7 @@
 
 * What is this?
 
-This is the command-line client and it's been tested under Linux and MacOs.
+This is the command-line client and it's been tested under various Linux distributions, BSD, MacOS and Windows (10 & 11).
 
 * What is required?
 
