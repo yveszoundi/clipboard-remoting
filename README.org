@@ -20,16 +20,18 @@ This is more or less how it works.
 ** Overview
 - Under Windows, the clipboard GUI client is leveraged
 - Under MacOS, the clipboard CLI client is invoked from scripts (AppleScript scripts, MacOS menu bar)
-- Under Linux or BSD, the clipboard CLI client is invoked from keyboard shortcuts within a tiling window manager ([[https://en.wikipedia.org/wiki/Dwm][dwm]], etc.).
+- Under Linux or BSD, the clipboard CLI client is invoked from keyboard shortcuts within a tiling window manager
 
   
-** Usage scenario with dwm, under Linux/BSD
-  
-On the machine where I'm copying text from:
+** Usage scenario under Linux/BSD
+
+I use a tiling window manager under UNIX like platforms(typically [[https://en.wikipedia.org/wiki/Dwm][dwm]]).
+
+On the /source machine/ where I'm copying text from:
 - =ctrl-c= pushes selected text to the local machine clipboard
 - =ctrl-t shift-c= sends the local machine clipboard contents to the remote clipboard server
 
-On the target machine, where I want to paste text:
+On the /target machine/, where I want to paste text to:
 - =ctrl-t shift-v= reads the remote clipboard server contents and puts it in the local machine  clipboard
 - =ctrl-v= pastes the newly fetched remote clipboard contents
 
