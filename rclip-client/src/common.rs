@@ -62,7 +62,7 @@ pub fn send_cmd(server_host: &str, port_number: u16, clipboard_cmd: ClipboardCmd
             let mut buf = String::new();
             reader.read_to_string(&mut buf).unwrap();
 
-            let response = buf.clone();//from_utf8(buffer)?;
+            let response = buf.clone();
 
             if response.starts_with("SUCCESS:") {
                 if input.starts_with("READ:") {

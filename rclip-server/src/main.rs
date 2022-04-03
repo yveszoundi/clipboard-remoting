@@ -16,14 +16,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .arg(
             Arg::with_name("host")
                 .long("host")
-                .help("Host defaulting to 127.0.0.1")
+                .help("IP address to bind to")
                 .required(false)
                 .default_value("127.0.0.1")
                 .takes_value(true)
         ).arg(
             Arg::with_name("port")
                 .long("port")
-                .help("port")
+                .help("Port number")
                 .required(false)
                 .default_value("10080")
                 .takes_value(true)
@@ -45,7 +45,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let listener = TcpListener::bind(con_string).await?;
     let clipboard = Arc::new(Mutex::new("".to_string()));
 
-    println!("Starting server on {} with port {}.", host, port);
+    println!("Starting '{}' on {} with port {}.", app.get_name(), host, port);
 
     loop {
         let (mut socket, _) = listener.accept().await?;
