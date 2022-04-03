@@ -5,10 +5,10 @@
 A *quick and very dirty* solution for sharing text over a network, in a multi-virtual-machine environment scenario.
 - I wasn't able to get [[https://en.wikipedia.org/wiki/QEMU][QEMU]] [[https://gitlab.freedesktop.org/spice/spice/-/issues/39][spice support]] ready to go for MacOS after few hours, nor did I want to implement more involved solutions
 - Even though, I later managed to fix =spice support= compilation issues, I don't think that I'll change my current workflow :
-  - I often need to copy text between several operating systems (Linux, BSD, MacOS and sometimes Windows Machines)
-  - No need to worry about some "clipboard service agent"
-    - Does the =clipboard service agent= needs to be running as a service (occasional crashes, program stuck, etc.)?
-    - Can the =clipboard service agent= be installed on several operating systems (Linux, MacOS, BSD* & Windows)
+  - I often need to copy text between several operating systems (Linux, BSD, MacOS, Windows)
+  - No need to worry about common "clipboard service agent" issues
+    - Is it still running? Did it crash or get stuck?
+    - Does it only work under specific operating systems?
 
 This is more or less how it works.
 [[./images/diagram.png]]
