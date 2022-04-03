@@ -3,15 +3,16 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use clap::{App, Arg};
 use std::sync::{Arc, Mutex};
 
-const CMD_READ  : &str = "READ:";
-const CMD_WRITE : &str = "WRITE:";
+const CMD_READ   : &str  = "READ:";
+const BUFFER_CAP : usize = 2048;
+const CMD_WRITE  : &str  = "WRITE:";
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let app = App::new("rclip-server")
-        .version("0.0.1")
+    let app = App::new(option_env!("CARGO_PKG_NAME").unwrap_or("Unknown"))
+        .version(option_env!("CARGO_PKG_VERSION").unwrap_or("Unknown"))
         .author("Yves Zoundi")
-        .about("Clipboard server")
+        .about(option_env!("CARGO_PKG_DESCRIPTION").unwrap_or("Unknown"))
         .arg(
             Arg::with_name("host")
                 .long("host")
@@ -51,11 +52,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let clipboard_copy = clipboard.clone();
 
         tokio::spawn(async move {
-            let mut buf_vec = vec![0; 4096];
+            let mut request = String::new();
+            let (mut reader, mut writer) = socket.split();
 
             loop {
-                match socket.read(&mut buf_vec).await {
+                let mut buf_vec = vec![0; BUFFER_CAP];
+                let bytes_read = match reader.read(&mut buf_vec).await {
                     Ok(n) => {
+                        let data = String::from_utf8(buf_vec[0..n].to_vec());
+                        request.extend(data);
                         n
                     },
                     Err(e) => {
@@ -63,20 +68,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                 };
 
-                buf_vec = buf_vec.into_iter().filter(|&i| i != 0).collect::<Vec<u8>>();
-
-                match std::str::from_utf8(&buf_vec)  {
-                    Ok(request) => {
-                        let response = handle_message(request, clipboard_copy);
-
-                        if let Err(e) = socket.write_all(response.as_bytes()).await {
-                            return Err(e.to_string());
-                        }
-                    },
-                    Err(e) => return Err(format!("Could not read request data. {}", e.to_string()))
+                if bytes_read == 0 || bytes_read < BUFFER_CAP {
+                    break;
                 }
+            }
 
-                break;
+            let response = handle_message(request, clipboard_copy);
+
+            if let Err(e) = writer.write_all(response.as_bytes()).await {
+                return Err(e.to_string());
             }
 
             Ok(())
@@ -84,18 +84,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 }
 
-fn handle_message(msg: &str, clipboard: Arc<Mutex<String>>) -> String {
+fn handle_message(data: String, clipboard: Arc<Mutex<String>>) -> String {
     match clipboard.lock() {
         Ok(mut old_clipboard) => {
-            if msg.starts_with(CMD_READ) {
+            if data.starts_with(CMD_READ) {
                 return format!("SUCCESS:{}", old_clipboard.as_str());
-            } else if msg.starts_with(CMD_WRITE) {
-                let new_clipboard = &msg[CMD_WRITE.len()..];
+            } else if data.starts_with(CMD_WRITE) {
+                let new_clipboard = &data[CMD_WRITE.len()..];
                 old_clipboard.clear();
                 old_clipboard.push_str(new_clipboard);
                 return format!("SUCCESS:{}", new_clipboard);
             } else {
-                return format!("ERROR:Unknown message {}.", msg);
+                return format!("ERROR:Unknown message {}.", data);
             }
         },
         Err(ex) =>{

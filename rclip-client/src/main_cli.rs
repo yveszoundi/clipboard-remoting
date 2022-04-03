@@ -4,17 +4,11 @@ use std::error::Error;
 mod common;
 
 fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
-    let app = App::new("rclip-client-cli")
-        .version("0.0.1")
+    let app = App::new(option_env!("CARGO_PKG_NAME").unwrap_or("Unknown"))
+        .version(option_env!("CARGO_PKG_VERSION").unwrap_or("Unknown"))
         .author("Yves Zoundi")
-        .about("Clipboard client")
+        .about(option_env!("CARGO_PKG_DESCRIPTION").unwrap_or("Unknown"))
         .arg(
-            Arg::with_name("clipboard-program")
-                .long("clipboard-program")
-                .help("External clipboard wrapper accepting a single input argument.")
-                .required(false)
-                .takes_value(true)
-        ).arg(
             Arg::with_name("server-host")
                 .long("server-host")
                 .help("Server host")
@@ -56,35 +50,22 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         None => common::DEFAULT_SERVER_PORT_STR
     };
 
-    let clipboard_program = run_matches.value_of("clipboard-program");
+    let cmd_text_opt = if let Some(xx) = run_matches.value_of("text") {
+        Some(xx.to_string())
+    } else {
+        None
+    };
+
     let proposed_cmd = match run_matches.value_of("command") {
         Some(cmd) => cmd,
         None => "READ"
     };
 
-    let cmd_text_opt = if let Some(xx) = run_matches.value_of("text") {
-        Some(xx.to_string())
-    } else {
-        None
-    };    
-
-    if cfg!(any(target_os="freebsd", target_os="netbsd", target_os="openbsd", )) {
-        if clipboard_program.is_none() {
-            if cmd_text_opt.is_none() && proposed_cmd == "READ" {
-                return Err("The clipboard program argument is required for BSD platforms.".into());                
-            }
-        }
-    }
-
     let clipboard_cmd = match proposed_cmd {
         "READ" => {
             common::ClipboardCmd {
                 name: "READ".to_string(),
-                text: None,
-                clipboard_program: match clipboard_program {
-                    Some(x) => Some(x.to_string()),
-                    _ => None
-                }
+                text: None
             }
         },
         _ => {
@@ -93,17 +74,13 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
                 text: match cmd_text_opt {
                     Some(x) => Some(x.to_string()),
                     _ => {
-                        if let Ok(clipboard_contents) = common::get_clipboard_contents(clipboard_program) {
+                        if let Ok(clipboard_contents) = common::get_clipboard_contents() {
                             Some(clipboard_contents)
                         } else {
                             return Err("Could not acquire clipboard contents".into())
                         }
                     }
                 },
-                clipboard_program: match clipboard_program {
-                    Some(x) => Some(x.to_string()),
-                    _ => None
-                }
             }
         }
     };

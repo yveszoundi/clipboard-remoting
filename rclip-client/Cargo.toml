@@ -1,7 +1,8 @@
 [package]
-name = "clipboard-client"
-version = "0.1.0"
+name = "rclip-client"
+version = "0.0.1"
 edition = "2018"
+description = "rclip clipboard client" 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -15,7 +16,8 @@ path = "src/main_gui.rs"
 
 [dependencies]
 clap = "2.33.3"
+copypasta = "0.7.1"
+copypasta-ext = "0.3.7"
 
 [target.'cfg(not(any(target_os = "openbsd", target_os = "freebsd", target_os ="netbsd" )))'.dependencies]
-copypasta = "0.7.1"
 fltk = { version = "1.2.26", features = ["fltk-bundled"] }

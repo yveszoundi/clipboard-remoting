@@ -51,7 +51,6 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         let clipboard_cmd = common::ClipboardCmd {
             name: cmd_name.to_string(),
             text: cmd_text,
-            clipboard_program: None
         };
 
         let server_port = port_text.parse::<u16>()?;
@@ -70,7 +69,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
             let port_text = c_input_port.borrow().value();
             let host_text = c_input_host.borrow().value();
 
-            if let Ok(clipboard_contents) = common::get_clipboard_contents(None) {
+            if let Ok(clipboard_contents) = common::get_clipboard_contents() {
                 let cmd_text_opt = Some(clipboard_contents);
 
                 if let Err(ex) = send_cmd(host_text, port_text, "WRITE", cmd_text_opt) {
