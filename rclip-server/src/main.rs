@@ -4,7 +4,7 @@ use clap::{App, Arg};
 use std::sync::{Arc, Mutex};
 
 const CMD_READ   : &str  = "READ:";
-const BUFFER_CAP : usize = 2048;
+const BUFFER_CAP : usize = 512;
 const CMD_WRITE  : &str  = "WRITE:";
 
 #[tokio::main]
