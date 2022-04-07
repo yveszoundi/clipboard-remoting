@@ -69,12 +69,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let key_pub_bytes = match run_matches.value_of("der-cert-pub") {
         Some(der_cert_pub) => fs::read(der_cert_pub)?,
-        None => return Err("Cannot find cert".into())
+        None => return Err("Cannot find cert".into()),
     };
 
     let key_priv_bytes = match run_matches.value_of("der-cert-priv") {
         Some(der_cert_priv) => fs::read(der_cert_priv)?,
-        None => return Err("Cannot find cert".into())
+        None => return Err("Cannot find cert".into()),
     };
 
     let config = rustls::ServerConfig::builder()
@@ -116,10 +116,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                 }
                                 Err(e) => {
                                     return Err(format!(
-                                    "Failed to decode request; err = {}",
-                                    e.to_string()
-                                )
-                                           .into());
+                                        "Failed to decode request; err = {}",
+                                        e.to_string()
+                                    )
+                                    .into());
                                 }
                             },
                             Err(e) => {
@@ -127,7 +127,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                     "Failed to read from socket; err = {}",
                                     e.to_string()
                                 )
-                                           .into());
+                                .into());
                             }
                         };
 
@@ -143,11 +143,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     }
                 }
                 Err(e) => {
-                     return Err(format!(
-                                    "Error with TLS negotiation; err = {}",
-                                    e.to_string()
-                                )
-                                           .into());
+                    return Err(
+                        format!("Error with TLS negotiation; err = {}", e.to_string()).into(),
+                    );
                 }
             }
 

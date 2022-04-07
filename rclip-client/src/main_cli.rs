@@ -80,7 +80,7 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         "CLEAR" => common::ClipboardCmd {
             name: "CLEAR".to_string(),
             text: Some(String::new()),
-        },        
+        },
         _ => common::ClipboardCmd {
             name: "WRITE".to_string(),
             text: match cmd_text_opt {
@@ -88,7 +88,7 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
                 _ => {
                     if let Ok(clipboard_contents) = common::get_clipboard_contents() {
                         Some(clipboard_contents)
-                    } else {
+                    } else {                        
                         return Err("Could not acquire clipboard contents".into());
                     }
                 }
@@ -98,8 +98,14 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
     let der_cert_pub = match run_matches.value_of("der-cert-pub") {
         Some(der_cert_path) => der_cert_path,
-        None => return Err("Cannot find public certificate".into())
+        None => return Err("Cannot find public certificate".into()),
     };
-    
-    common::send_cmd(server_host, server_port.parse::<u16>()?, der_cert_pub, clipboard_cmd).await
+
+    common::send_cmd(
+        server_host,
+        server_port.parse::<u16>()?,
+        der_cert_pub,
+        clipboard_cmd,
+    )
+    .await
 }

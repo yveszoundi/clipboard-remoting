@@ -25,6 +25,8 @@ impl std::fmt::Display for ClipboardCmd {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.name.starts_with("READ") {
             write!(f, "READ:")
+        } else if self.name.starts_with("CLEAR") {
+            write!(f, "CLEAR:")
         } else {
             if let Some(txt) = &self.text {
                 write!(f, "WRITE:{}", txt)
@@ -62,7 +64,15 @@ impl rustls::client::ServerCertVerifier for AcceptSpecificCertsVerifier {
 pub fn get_clipboard_contents() -> Result<String, Box<dyn Error + Send + Sync>> {
     use copypasta::{ClipboardContext, ClipboardProvider};
     let mut ctx = ClipboardContext::new()?;
-    Ok(format!("{}", ctx.get_contents()?))
+
+    // Exception under Windows when the clipboard is empty
+    // Need to revisit it at some point
+    let ret = match ctx.get_contents() {
+        Ok(data) => data,
+        Err(_) => String::new()
+    };
+
+    Ok(format!("{}", ret))
 }
 
 #[cfg(not(any(target_os = "windows", target_os = "macos")))]
@@ -89,12 +99,11 @@ pub async fn send_cmd(
     server_host: &str,
     port_number: u16,
     key_pub_loc: &str,
-    clipboard_cmd: ClipboardCmd,    
+    clipboard_cmd: ClipboardCmd,
 ) -> Result<(), Box<dyn Error + Send + Sync>> {
     let input = format!("{}", clipboard_cmd);
 
-    let key_pub_bytes =
-        fs::read(key_pub_loc)?;
+    let key_pub_bytes = fs::read(key_pub_loc)?;
 
     let config = rustls::ClientConfig::builder()
         .with_safe_defaults()
@@ -113,9 +122,7 @@ pub async fn send_cmd(
         .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "Invalid dnsname"))?;
 
     let stream = connector.connect(domain, stream).await?;
-
     let (mut reader, mut writer) = split(stream);
-
     writer.write_all(input.as_bytes()).await?;
 
     let mut response = String::new();
