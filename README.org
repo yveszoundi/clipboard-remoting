@@ -2,7 +2,7 @@
 
 * What is this?
 
-A *quick and very dirty* solution for sharing text over a network, in a multi-virtual-machine environment scenario.
+A *quick and very dirty* solution for sharing text over a network.
 - I wasn't able to get [[https://en.wikipedia.org/wiki/QEMU][QEMU]] [[https://gitlab.freedesktop.org/spice/spice/-/issues/39][spice support]] ready to go for MacOS after few hours, nor did I want to implement more involved solutions
 - Even though, I later managed to fix =spice support= issues, I won't be using it:
   - I often need to copy text between several operating systems (Linux, BSD, MacOS, Windows)
@@ -33,6 +33,13 @@ On the /source machine/ where I'm copying text from:
 On the /target machine/, where I want to paste text to:
 - =ctrl-t shift-v= fetches the remote clipboard server into the local machine clipboard
 - =ctrl-v= pastes text from the local machine clipboard
+
+  
+** Usage scenario under MacOS
+Instead of use the GUI client, it's more convenient IMHO to wrap the CLI client with scrips invoked from the global menubar ( AppleScript scripts).
+
+** Usage scenario under Windows
+The GUI client is more user friendly. In the future, it might be worth looking into a popup menu (i.e. tray icon in the taskbar).
 
 * What is required?
 

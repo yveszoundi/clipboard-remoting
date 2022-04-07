@@ -10,7 +10,7 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         .author(option_env!("CARGO_PKG_AUTHORS").unwrap_or("Unknown"))
         .about(option_env!("CARGO_PKG_DESCRIPTION").unwrap_or("Unknown"))
         .arg(
-            Arg::with_name("server-host")
+            Arg::with_name("host")
                 .long("host")
                 .help("Server host")
                 .required(false)
@@ -18,7 +18,7 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name("server-port")
+            Arg::with_name("port")
                 .long("port")
                 .help("Server port")
                 .required(false)
