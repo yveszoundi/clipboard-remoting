@@ -13,7 +13,7 @@ A *quick and very dirty* solution for sharing text over a network, in a multi-vi
 This is more or less how it works.
 [[./images/diagram.png]]
 
-*Please do not use for anything sensitive!*
+While SSL support has been added, *please do not use for anything sensitive over the Internet!*. The primary use case is for sharing text over an internal local machine network (between a host and guest virtual machines).
 
 * How is this being used?
 
@@ -43,12 +43,12 @@ On the /target machine/, where I want to paste text to:
 
 * What is potentially next?
 
+- [X] Add SSL support
+- [ ] Deal with Linux binaries across multiple distros and dynamic linking (GLIBC versions, Musl things)
 - [ ] Using a standard message format (JSON, XML, etc.)
 - [ ] Leveraging a standard communication approach (RPC, REST, etc.)
-- [ ] Add SSL support
-- [ ] Rethink communication model (agent, actor)
 - [ ] Rethink the main purpose of this project
-  - Passing only plain text forever?
-  - Adding other features such as clipboard history, etc.
+  - [ ] Passing only plain text forever? this is also due to a library dependency?
+  - [ ] Adding other features such as clipboard history, etc.
   
   
