@@ -51,12 +51,12 @@ impl rustls::client::ServerCertVerifier for AcceptSpecificCertsVerifier {
         _ocsp_response: &[u8],
         _now: SystemTime,
     ) -> Result<ServerCertVerified, rustls::Error> {
-        let presented_cert = end_entity; //&intermediates[0];
         for cert in &self.certs {
-            if presented_cert == cert {
+            if end_entity == cert {
                 return Ok(rustls::client::ServerCertVerified::assertion());
             }
         }
+
         return Err(rustls::Error::General("Unknown issuer".to_string()));
     }
 }
