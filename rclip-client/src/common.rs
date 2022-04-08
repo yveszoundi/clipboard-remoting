@@ -69,7 +69,7 @@ pub fn get_clipboard_contents() -> Result<String, Box<dyn Error + Send + Sync>> 
     // Need to revisit it at some point
     let ret = match ctx.get_contents() {
         Ok(data) => data,
-        Err(_) => String::new()
+        Err(_) => String::new(),
     };
 
     Ok(format!("{}", ret))

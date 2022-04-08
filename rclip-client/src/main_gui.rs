@@ -1,12 +1,13 @@
+use fltk::{app, button, dialog, group, input, prelude::*, window};
 use std::cell::RefCell;
 use std::error::Error;
 use std::rc::Rc;
 use tokio;
-use fltk::{app, button, dialog, group, input, prelude::*, window};
 
 mod common;
 
-fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let app = app::App::default().with_scheme(app::Scheme::Gleam);
 
     let mut wind = window::Window::default()
@@ -113,7 +114,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         key_pub_der: String,
         cmd_name: &str,
         cmd_text: Option<String>,
-    ) -> Result<(), Box<dyn Error>> {
+    ) -> Result<(), Box<dyn Error + Send + Sync>> {
         let clipboard_cmd = common::ClipboardCmd {
             name: cmd_name.to_string(),
             text: cmd_text,
@@ -134,10 +135,6 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         }
     }
 
-    let tokio_rt = Rc::new(RefCell::new(tokio::runtime::Runtime::new()?));
-    let tokio_rt_ref_clear = tokio_rt.clone();
-    let tokio_rt_ref_receive = tokio_rt.clone();
-
     button_send.set_callback({
         let c_input_host = input_host.clone();
         let c_input_port = input_port.clone();
@@ -145,23 +142,23 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         move |_| {
             let port_text = c_input_port.borrow().value();
             let host_text = c_input_host.borrow().value();
+            let cert_path = input_pub_cert_copy2.borrow().value();
 
             if let Ok(clipboard_contents) = common::get_clipboard_contents() {
                 let cmd_text_opt = Some(clipboard_contents);
+                let wind_copy = wind_copy.clone();
 
-                if let Err(ex) = tokio_rt.borrow().block_on(send_cmd(
-                    host_text,
-                    port_text,
-                    input_pub_cert_copy2.borrow().value(),
-                    "WRITE",
-                    cmd_text_opt,
-                )) {
-                    dialog::alert(
-                        wind_copy.x(),
-                        wind_copy.y() + wind_copy.height() / 2,
-                        ex.to_string().as_str(),
-                    );
-                }
+                tokio::spawn(async move {
+                    if let Err(ex) =
+                        send_cmd(host_text, port_text, cert_path, "WRITE", cmd_text_opt).await
+                    {
+                        dialog::alert(
+                            wind_copy.x(),
+                            wind_copy.y() + wind_copy.height() / 2,
+                            ex.to_string().as_str(),
+                        );
+                    }
+                });
             } else {
                 dialog::alert(
                     wind_copy.x(),
@@ -180,20 +177,20 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
             let port_text = c_input_port.borrow().value();
             let host_text = c_input_host.borrow().value();
             let cmd_text_opt = Some(String::new());
+            let cert_path = input_pub_cert_copy3.borrow().value();
+            let wind_ref_clear = wind_ref_clear.clone();
 
-            if let Err(ex) = tokio_rt_ref_clear.borrow().block_on(send_cmd(
-                host_text,
-                port_text,
-                input_pub_cert_copy3.borrow().value(),
-                "CLEAR",
-                cmd_text_opt,
-            )) {
-                dialog::alert(
-                    wind_ref_clear.x(),
-                    wind_ref_clear.y() + wind_ref_clear.height() / 2,
-                    ex.to_string().as_str(),
-                );
-            }
+            tokio::spawn(async move {
+                if let Err(ex) =
+                    send_cmd(host_text, port_text, cert_path, "CLEAR", cmd_text_opt).await
+                {
+                    dialog::alert(
+                        wind_ref_clear.x(),
+                        wind_ref_clear.y() + wind_ref_clear.height() / 2,
+                        ex.to_string().as_str(),
+                    );
+                }
+            });
         }
     });
 
@@ -201,20 +198,18 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         move |_| {
             let port_text = input_port_copy.borrow().value();
             let host_text = input_host_copy.borrow().value();
+            let cert_path = input_pub_cert_copy.borrow().value();
+            let wind_ref_receive = wind_ref_receive.clone();
 
-            if let Err(ex) = tokio_rt_ref_receive.borrow().handle().block_on(send_cmd(
-                host_text,
-                port_text,
-                input_pub_cert_copy.borrow().value(),
-                "READ",
-                None,
-            )) {
-                dialog::alert(
-                    wind_ref_receive.x(),
-                    wind_ref_receive.y() + wind_ref_receive.height() / 2,
-                    ex.to_string().as_str(),
-                );
-            }
+            tokio::spawn(async move {
+                if let Err(ex) = send_cmd(host_text, port_text, cert_path, "READ", None).await {
+                    dialog::alert(
+                        wind_ref_receive.x(),
+                        wind_ref_receive.y() + wind_ref_receive.height() / 2,
+                        ex.to_string().as_str(),
+                    );
+                }
+            });
         }
     });
 

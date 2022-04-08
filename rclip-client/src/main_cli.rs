@@ -88,7 +88,7 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
                 _ => {
                     if let Ok(clipboard_contents) = common::get_clipboard_contents() {
                         Some(clipboard_contents)
-                    } else {                        
+                    } else {
                         return Err("Could not acquire clipboard contents".into());
                     }
                 }
