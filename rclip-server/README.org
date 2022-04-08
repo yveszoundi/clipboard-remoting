@@ -2,11 +2,11 @@
 
 * What is this?
 
-This is the clipboard server command-line application and it's been tested under MacOs.
+This is the clipboard server command-line application.
 
 * What is required?
 
-- *Operating System*: Linux or MacOS. Windows and BSD systems haven't been tested yet.
+- *Operating System*: Linux, MacOS, Windows or BSD (FreeBSD, NetBSD, OpenBSD).
 - A [[https://www.rust-lang.org/][rust]] compiler and the [[https://doc.rust-lang.org/cargo/][cargo]] build tool
 
 * How to build this?
@@ -26,14 +26,5 @@ At the root of this project, open a command prompt and type =cargo build=.
 The command below starts the server on port =10080= and binds to =127.0.0.1=.
 
 #+begin_src sh
-  ./target/debug/rclip-server
-#+end_src
-
-
-** Starts the server with advanced options
-
-The command below starts the server on port =10000= and binds to all network interfaces (=0.0.0.0=).
-
-#+begin_src sh
-  ./target/debug/rclip-server --host 0.0.0.0 --port 10000
+  ./target/debug/rclip-server --der-cert-pub rclip-der-cert-pub.der --der-cert-priv rclip-der-cert-priv.der
 #+end_src
