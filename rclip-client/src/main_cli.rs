@@ -3,8 +3,7 @@ use std::error::Error;
 
 mod common;
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
+fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let app = App::new(option_env!("CARGO_PKG_NAME").unwrap_or("Unknown"))
         .version(option_env!("CARGO_PKG_VERSION").unwrap_or("Unknown"))
         .author(option_env!("CARGO_PKG_AUTHORS").unwrap_or("Unknown"))
@@ -107,5 +106,4 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         der_cert_pub,
         clipboard_cmd,
     )
-    .await
 }

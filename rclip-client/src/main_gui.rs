@@ -2,18 +2,20 @@ use fltk::{app, button, dialog, group, input, prelude::*, window};
 use std::cell::RefCell;
 use std::error::Error;
 use std::rc::Rc;
-use tokio;
 
 mod common;
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
+fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let app = app::App::default().with_scheme(app::Scheme::Gleam);
+
+    let wind_title = format!("{} {}",
+                             option_env!("CARGO_PKG_NAME").unwrap_or("Unknown"),
+                             option_env!("CARGO_PKG_VERSION").unwrap_or("Unknown"));        
 
     let mut wind = window::Window::default()
         .with_size(430, 230)
         .center_screen()
-        .with_label(option_env!("CARGO_PKG_NAME").unwrap_or("Unknown"));
+        .with_label(wind_title.as_str());
     let wind_copy = wind.clone();
     let wind_ref_receive = wind.clone();
     let wind_ref_clear = wind.clone();
@@ -108,7 +110,7 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         .with_size(80, 20)
         .with_label("Clear");
 
-    async fn send_cmd(
+    fn send_cmd(
         host_text: String,
         port_text: String,
         key_pub_der: String,
@@ -127,9 +129,7 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
             server_port,
             key_pub_der.as_str(),
             clipboard_cmd,
-        )
-        .await
-        {
+        ) {
             Ok(_) => Ok(()),
             Err(ex) => Err(format!("{}", ex.to_string()).into()),
         }
@@ -148,17 +148,13 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
                 let cmd_text_opt = Some(clipboard_contents);
                 let wind_copy = wind_copy.clone();
 
-                tokio::spawn(async move {
-                    if let Err(ex) =
-                        send_cmd(host_text, port_text, cert_path, "WRITE", cmd_text_opt).await
-                    {
-                        dialog::alert(
-                            wind_copy.x(),
-                            wind_copy.y() + wind_copy.height() / 2,
-                            ex.to_string().as_str(),
-                        );
-                    }
-                });
+                if let Err(ex) = send_cmd(host_text, port_text, cert_path, "WRITE", cmd_text_opt) {
+                    dialog::alert(
+                        wind_copy.x(),
+                        wind_copy.y() + wind_copy.height() / 2,
+                        ex.to_string().as_str(),
+                    );
+                }
             } else {
                 dialog::alert(
                     wind_copy.x(),
@@ -180,17 +176,13 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
             let cert_path = input_pub_cert_copy3.borrow().value();
             let wind_ref_clear = wind_ref_clear.clone();
 
-            tokio::spawn(async move {
-                if let Err(ex) =
-                    send_cmd(host_text, port_text, cert_path, "CLEAR", cmd_text_opt).await
-                {
-                    dialog::alert(
-                        wind_ref_clear.x(),
-                        wind_ref_clear.y() + wind_ref_clear.height() / 2,
-                        ex.to_string().as_str(),
-                    );
-                }
-            });
+            if let Err(ex) = send_cmd(host_text, port_text, cert_path, "CLEAR", cmd_text_opt) {
+                dialog::alert(
+                    wind_ref_clear.x(),
+                    wind_ref_clear.y() + wind_ref_clear.height() / 2,
+                    ex.to_string().as_str(),
+                );
+            }
         }
     });
 
@@ -201,15 +193,13 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
             let cert_path = input_pub_cert_copy.borrow().value();
             let wind_ref_receive = wind_ref_receive.clone();
 
-            tokio::spawn(async move {
-                if let Err(ex) = send_cmd(host_text, port_text, cert_path, "READ", None).await {
-                    dialog::alert(
-                        wind_ref_receive.x(),
-                        wind_ref_receive.y() + wind_ref_receive.height() / 2,
-                        ex.to_string().as_str(),
-                    );
-                }
-            });
+            if let Err(ex) = send_cmd(host_text, port_text, cert_path, "READ", None) {
+                dialog::alert(
+                    wind_ref_receive.x(),
+                    wind_ref_receive.y() + wind_ref_receive.height() / 2,
+                    ex.to_string().as_str(),
+                );
+            }
         }
     });
 

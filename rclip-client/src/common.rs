@@ -1,18 +1,13 @@
-use std::convert::TryFrom;
-use std::io;
-use std::time::SystemTime;
-
 use rustls::client::ServerCertVerified;
-use rustls::ServerName;
+use rustls::{Certificate, ServerName};
+use std::convert::TryFrom;
 use std::error::Error;
 use std::fs;
+use std::io::{self, Read, Write};
+use std::net;
 use std::sync::Arc;
-use tokio::io::{split, AsyncReadExt, AsyncWriteExt};
-use tokio::net::TcpStream;
-use tokio_rustls::rustls::Certificate;
-use tokio_rustls::TlsConnector;
+use std::time::SystemTime;
 
-const BUFFER_CAP: usize = 512;
 pub const DEFAULT_SERVER_HOST_STR: &str = "127.0.0.1";
 pub const DEFAULT_SERVER_PORT_STR: &str = "10080";
 
@@ -95,14 +90,13 @@ pub fn set_clipboard_contents(clipboard_text: String) -> Result<(), Box<dyn Erro
     Ok(())
 }
 
-pub async fn send_cmd(
+pub fn send_cmd(
     server_host: &str,
     port_number: u16,
     key_pub_loc: &str,
     clipboard_cmd: ClipboardCmd,
 ) -> Result<(), Box<dyn Error + Send + Sync>> {
     let input = format!("{}", clipboard_cmd);
-
     let key_pub_bytes = fs::read(key_pub_loc)?;
 
     let config = rustls::ClientConfig::builder()
@@ -112,42 +106,22 @@ pub async fn send_cmd(
         }))
         .with_no_client_auth();
 
-    let connector = TlsConnector::from(Arc::new(config));
     let addr = format!("{}:{}", server_host, port_number);
-    let stream = TcpStream::connect(addr.clone()).await?;
+    let request = input.as_bytes();
 
     // Just need to resolve a domain, as IP addresses are not supported to use the actual server IP
     // see also https://docs.rs/rustls/latest/rustls/enum.ServerName.html
-    let domain = rustls::ServerName::try_from("localhost")
+    let dns_name = rustls::ServerName::try_from("localhost")
         .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "Invalid dnsname"))?;
 
-    let stream = connector.connect(domain, stream).await?;
-    let (mut reader, mut writer) = split(stream);
-    writer.write_all(input.as_bytes()).await?;
+    let mut socket = net::TcpStream::connect(addr)?;
+    let mut connection = rustls::ClientConnection::new(Arc::new(config), dns_name)?;
+    let mut tls = rustls::Stream::new(&mut connection, &mut socket);
+
+    tls.write_all(request)?;
 
     let mut response = String::new();
-
-    loop {
-        let mut buf_vec = vec![0; BUFFER_CAP];
-        let bytes_read = match reader.read(&mut buf_vec).await {
-            Ok(n) => match String::from_utf8(buf_vec[0..n].to_vec()) {
-                Ok(data) => {
-                    response.push_str(&data);
-                    n
-                }
-                Err(e) => {
-                    return Err(format!("Cannot read server data; err = {}", e.to_string()).into());
-                }
-            },
-            Err(e) => {
-                return Err(format!("Failed to read from socket; err = {}", e.to_string()).into());
-            }
-        };
-
-        if bytes_read == 0 || bytes_read < BUFFER_CAP {
-            break;
-        }
-    }
+    tls.read_to_string(&mut response)?;
 
     if response.starts_with("SUCCESS:") {
         if input.starts_with("READ:") || input.starts_with("CLEAR:") {
