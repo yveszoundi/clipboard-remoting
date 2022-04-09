@@ -1,6 +1,6 @@
 [package]
 name = "rclip-client"
-version = "0.0.2"
+version = "1.0.0"
 edition = "2018"
 description = "rclip clipboard client" 
 keywords = ["clipboard", "remoting"]

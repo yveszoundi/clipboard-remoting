@@ -6,14 +6,12 @@
 - While the primary use case of =rclip= is text sharing within an internal machine network (host and local virtual machines), you can probably share clipboard text over the internet or the intranet.
 
 * How is this being used?
-
 On the host running the =rclip server=, a self-signed certificate is generated (Please check the =make_cert.sh= script).
 - The public and private keys are exported in [[https://wiki.openssl.org/index.php/DER][DER]] format.
 - The public key then needs to be copied to all the machines running the =rclip client=, via [[https://linux.die.net/man/1/scp][scp]] for example.
 
 * What is required?
 Please use the =make_cert.sh= script to generate self-signed SSL certificates.
-
 You'll need a recent enough version of [[https://www.openssl.org/][OpenSSL]] for "extended arguments" (DNS and IP address of the server).
 
 ** Under Linux, MacOS or BSD

@@ -8,9 +8,11 @@ mod common;
 fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let app = app::App::default().with_scheme(app::Scheme::Gleam);
 
-    let wind_title = format!("{} {}",
-                             option_env!("CARGO_PKG_NAME").unwrap_or("Unknown"),
-                             option_env!("CARGO_PKG_VERSION").unwrap_or("Unknown"));        
+    let wind_title = format!(
+        "{} {}",
+        option_env!("CARGO_PKG_NAME").unwrap_or("Unknown"),
+        option_env!("CARGO_PKG_VERSION").unwrap_or("Unknown")
+    );
 
     let mut wind = window::Window::default()
         .with_size(430, 230)

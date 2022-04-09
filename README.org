@@ -1,7 +1,6 @@
 #+TITLE: README
 
 * What is this?
-
 A *quick and very dirty* solution for sharing text over a network.
 - I wasn't able to get [[https://en.wikipedia.org/wiki/QEMU][QEMU]] [[https://gitlab.freedesktop.org/spice/spice/-/issues/39][spice support]] ready to go for MacOS after few hours, nor did I want to implement more involved solutions
 - Even though, I later managed to fix =spice support= issues, I won't be using it:
@@ -16,14 +15,12 @@ This is more or less how it works.
 While SSL support has been added, *please do not use for anything sensitive over the Internet!*. The primary use case is for sharing text over an internal local machine network (between a host and guest virtual machines).
 
 * How is this being used?
-
 ** Overview
 - Under Windows, the clipboard GUI client is leveraged
 - Under MacOS, the clipboard CLI client is invoked from scripts (AppleScript scripts, MacOS menu bar)
 - Under Linux or BSD, the clipboard CLI client is invoked from keyboard shortcuts within a tiling window manager
   
 ** Usage scenario under Linux/BSD
-
 I use a tiling window manager under UNIX like platforms (typically [[https://en.wikipedia.org/wiki/Dwm][dwm]]).
 
 On the /source machine/ where I'm copying text from:
@@ -36,21 +33,21 @@ On the /target machine/, where I want to paste text to:
 
   
 ** Usage scenario under MacOS
-Instead of use the GUI client, it's more convenient IMHO to wrap the CLI client with scrips invoked from the global menubar ( AppleScript scripts).
+Instead of  the GUI client, it's more convenient IMHO to [[https://apple.stackexchange.com/questions/235167/how-to-run-a-shell-script-from-an-applescript][wrap the CLI client with "AppleScript"]]. The scripts can be [[https://support.apple.com/guide/script-editor/access-scripts-using-the-script-menu-scpedt27975/mac][invoked from the global menubar]].
+
+That would result effectively into 3 scripts for the supported =rclip= operations (READ, WRITE and CLEAR).
 
 ** Usage scenario under Windows
 The GUI client is more user friendly. In the future, it might be worth looking into a popup menu (i.e. tray icon in the taskbar).
 
 * What is required?
-
 - *Operating System*: Linux, MacOS, Windows, BSD (FreeBSD, OpenBSD, NetBSD)
 - If provided binaries don't work (Linux distributions), then you'll need to build the programs yourself
 
   /Please note that the graphical user interface doesn't build under BSD platforms, you can only use the command-line client/.
 
 * What is potentially next?
-
-- [X] Add SSL support
+- [X] Add SSL support. Should SSL potentially be optional?
 - [ ] Deal with Linux binaries across multiple distros and dynamic linking (GLIBC versions, Musl things)
 - [ ] Using a standard message format (JSON, XML, etc.)
 - [ ] Leveraging a standard communication approach (RPC, REST, etc.)

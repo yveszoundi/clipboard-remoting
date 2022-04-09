@@ -52,7 +52,7 @@ impl rustls::client::ServerCertVerifier for AcceptSpecificCertsVerifier {
             }
         }
 
-        return Err(rustls::Error::General("Unknown issuer".to_string()));
+        return Err(rustls::Error::General("Unknown certificate issuer".to_string()));
     }
 }
 
@@ -60,8 +60,8 @@ pub fn get_clipboard_contents() -> Result<String, Box<dyn Error + Send + Sync>> 
     use copypasta::{ClipboardContext, ClipboardProvider};
     let mut ctx = ClipboardContext::new()?;
 
-    // Exception under Windows when the clipboard is empty
-    // Need to revisit it at some point
+    // Exception under Windows when the clipboard is empty.
+    // Need to revisit it at some point.
     let ret = match ctx.get_contents() {
         Ok(data) => data,
         Err(_) => String::new(),
@@ -109,8 +109,8 @@ pub fn send_cmd(
     let addr = format!("{}:{}", server_host, port_number);
     let request = input.as_bytes();
 
-    // Just need to resolve a domain, as IP addresses are not supported to use the actual server IP
-    // see also https://docs.rs/rustls/latest/rustls/enum.ServerName.html
+    // Just need to resolve a domain, as IP addresses are not supported to use the actual server IP.
+    // See also https://docs.rs/rustls/latest/rustls/enum.ServerName.html.
     let dns_name = rustls::ServerName::try_from("localhost")
         .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "Invalid dnsname"))?;
 
@@ -128,8 +128,8 @@ pub fn send_cmd(
             let mut clipboard_text: String = response.chars().skip("SUCCESS:".len()).collect();
 
             if clipboard_text.len() == 0 && cfg!(target_os = "windows") {
-		        clipboard_text.push_str("\0"); // workaround or MS expectation???
-	        }
+                clipboard_text.push_str("\0"); // workaround or MS expectation???
+            }
 
             set_clipboard_contents(clipboard_text)?;
         }
