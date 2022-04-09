@@ -125,7 +125,12 @@ pub fn send_cmd(
 
     if response.starts_with("SUCCESS:") {
         if input.starts_with("READ:") || input.starts_with("CLEAR:") {
-            let clipboard_text = response.chars().skip("SUCCESS:".len()).collect();
+            let mut clipboard_text: String = response.chars().skip("SUCCESS:".len()).collect();
+
+            if clipboard_text.len() == 0 && cfg!(target_os = "windows") {
+		        clipboard_text.push_str("\0"); // workaround or MS expectation???
+	        }
+
             set_clipboard_contents(clipboard_text)?;
         }
     } else {
