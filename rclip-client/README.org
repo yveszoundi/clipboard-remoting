@@ -33,8 +33,11 @@ Please refer to the top level folder for desktop or command-line screenshots.
 
 ** Desktop user interface
 
-*This merely exists for very occasional usage under MacOS, where I do not run a tiling window manager*.
-The ideal workflow is interacting with the command-line version via keyboard shortcuts.
+*This merely exists for very occasional usage under Windows:
+- Under Linux (tiling window manager preference), I invoke the CLI client via wrapper shell scripts
+- Under MacOS, wrapper shell scripts (AppleScript) accessed via the global menubar are more convenient
+
+The "ideal workflow" is interacting with the command-line version via keyboard shortcuts (Linux tiling Window Manager or maybe keyboard macros?).
 
 [[./images/screenshot_gui.png]]
 
