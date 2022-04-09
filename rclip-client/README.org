@@ -8,8 +8,8 @@ This is the command-line client and it's been tested under various Linux distrib
 
 - *Operating System*: Linux, MacOS. Minimal testing for Windows so far and pending checks for BSD distributions.
 - *Build Tools*: A rust compiler and the cargo build tool.
-- *Tools and Libraries under Linux*: curl, pango-dev, cairo-dev, libXcursor-dev (TBD update this list...).
-- *X11* under Linux and BSD platforms: specialized code was added for [[https://unix.stackexchange.com/questions/450508/how-to-keep-clipboard-content-from-xterm-after-closing-it-like-firefox-or-le][clipboard persistence]] mitigation.
+- *Tools and Libraries under Linux*: Under Debian-like distributions the following packages are required: =libxcb1-dev=, =libxcb-render0-dev=, =libxcb-shape0-dev=, =libxcb-xfixes0-dev=. For other distributions, packages might have a sligthly different naming.
+- *[[https://en.wikipedia.org/wiki/X_Window_System][X11/X.Org]]* under Linux and BSD platforms: specialized code was added for [[https://unix.stackexchange.com/questions/450508/how-to-keep-clipboard-content-from-xterm-after-closing-it-like-firefox-or-le][clipboard persistence]] mitigation. It's possible that the application works just fine under [[https://wayland.freedesktop.org/][Wayland]] but this hasn't been tested.
 
 * How to build this?
 
