@@ -1,54 +1,60 @@
 #+TITLE: README
 
 * What is this?
-
-A *quick and very dirty* solution for sharing text over a network, in a multi-virtual-machine environment scenario.
-- I wasn't able to get [[https://en.wikipedia.org/wiki/QEMU][QEMU]] [[https://gitlab.freedesktop.org/spice/spice/-/issues/39][spice support]] ready to go for MacOS after few hours, nor did I want to implement more involved solutions
-- Even though, I later managed to fix =spice support= issues, I won't be using it:
-  - I often need to copy text between several operating systems (Linux, BSD, MacOS, Windows)
-  - No need to worry about common "clipboard service agent" issues
-    - Is it still running? Did it crash or get stuck?
-    - Does it only work under specific operating systems?
+A *quick and very dirty* solution for sharing text over a network.
+- I wasn't able to get [[https://en.wikipedia.org/wiki/QEMU][QEMU]] [[https://gitlab.freedesktop.org/spice/spice/-/issues/39][spice support]] ready to go for MacOS quickly, nor did I want to implement involved solutions.
+- Even though, I later managed to fix =spice support= issues, I won't be using it for multiple reasons.
 
 This is more or less how it works.
 [[./images/diagram.png]]
 
-*Please do not use for anything sensitive!*
+While SSL support has been added, *please do not use for anything sensitive over the Internet!*. The primary use case is for sharing text over an internal local machine network (between a host and guest virtual machines).
 
 * How is this being used?
-
 ** Overview
-- Under Windows, the clipboard GUI client is leveraged
-- Under MacOS, the clipboard CLI client is invoked from scripts (AppleScript scripts, MacOS menu bar)
-- Under Linux or BSD, the clipboard CLI client is invoked from keyboard shortcuts within a tiling window manager
+1. On the =server=:
+   - Generate certificate files accordingly to the documentation in the =rclip-certs= folder.
+   - Copy the =rclip-server= binary to the location of your choice.
+2. Upload the =public key= and the =rclip-client= binary to all the machines communicating with the the server =rclip-server=.
+3. Run the =rclip-server=.
+4. Start sharing textual content via the =rclip-client= (GUI or CLI client).
   
-** Usage scenario under Linux/BSD
-
+** Client usage under Linux/BSD
 I use a tiling window manager under UNIX like platforms (typically [[https://en.wikipedia.org/wiki/Dwm][dwm]]).
 
 On the /source machine/ where I'm copying text from:
-- =ctrl-c= copies selected text to the local machine clipboard
-- =ctrl-t shift-c= sends the local machine clipboard contents to the remote clipboard server
+- =ctrl-c= copies selected text to the local machine clipboard.
+- =ctrl-t shift-c= sends the local machine clipboard contents to the remote clipboard server.
 
 On the /target machine/, where I want to paste text to:
-- =ctrl-t shift-v= fetches the remote clipboard server into the local machine clipboard
-- =ctrl-v= pastes text from the local machine clipboard
+- =ctrl-t shift-v= fetches the remote clipboard server into the local machine clipboard.
+- =ctrl-v= pastes text from the local machine clipboard.
+  
+** Client usage under MacOS
+Instead of the GUI client, it's more convenient IMHO to [[https://apple.stackexchange.com/questions/235167/how-to-run-a-shell-script-from-an-applescript][wrap the CLI client with "AppleScript"]]. The scripts can be [[https://support.apple.com/guide/script-editor/access-scripts-using-the-script-menu-scpedt27975/mac][invoked from the global menubar]].
+
+That would result effectively into 3 scripts for the supported =rclip= operations (READ, WRITE and CLEAR).
+
+** Usage scenario under Windows
+The GUI client is more user friendly. In the future, it might be worth looking into a popup menu (i.e. tray icon in the taskbar).
 
 * What is required?
+- *Operating System*: Linux, MacOS, Windows, BSD (FreeBSD, OpenBSD, NetBSD).
+- Please consult the =rclip-server= and =rclip-client= folders for build instructions.
+- There are binaries published for Windows, MacOS, Linux (CLI only pre-built) and BSD (CLI only pre-built).
 
-- *Operating System*: Linux, MacOS, Windows, BSD (FreeBSD, OpenBSD, NetBSD)
-- If provided binaries don't work (Linux distributions), then you'll need to build the programs yourself
 
-  /Please note that the graphical user interface doesn't build under BSD platforms, you can only use the command-line client/.
+Notes:
+- Pre-built desktop GUI binaries are not available for Linux, as it requires building against every single target Linux distribution (dynamic linking issues, version of dependencies, etc.).
+- Please note that the graphical user interface doesn't build under BSD platforms, you can only use the command-line client.
 
 * What is potentially next?
-
-- [ ] Using a standard message format (JSON, XML, etc.)
-- [ ] Leveraging a standard communication approach (RPC, REST, etc.)
-- [ ] Add SSL support
-- [ ] Rethink communication model (agent, actor)
-- [ ] Rethink the main purpose of this project
-  - Passing only plain text forever?
-  - Adding other features such as clipboard history, etc.
+- [X] Add SSL support. Should SSL potentially be optional?
+- [ ] Deal with Linux binaries across multiple distros and dynamic linking (GLIBC versions, Musl things).
+- [ ] Using a standard message format (JSON, XML, etc.).
+- [ ] Leveraging a standard communication approach (RPC, REST, etc.).
+- [ ] Rethink the main purpose of this project.
+  - [ ] Passing only plain text forever? this is also due to a library dependency?
+  - [ ] Adding other features such as clipboard history, etc.
   
   

@@ -1,6 +1,12 @@
+use rustls::client::ServerCertVerified;
+use rustls::{Certificate, ServerName};
+use std::convert::TryFrom;
 use std::error::Error;
-use std::net::TcpStream;
-use std::io::{Read, Write, BufReader};
+use std::fs;
+use std::io::{self, Read, Write};
+use std::net;
+use std::sync::Arc;
+use std::time::SystemTime;
 
 pub const DEFAULT_SERVER_HOST_STR: &str = "127.0.0.1";
 pub const DEFAULT_SERVER_PORT_STR: &str = "10080";
@@ -14,6 +20,8 @@ impl std::fmt::Display for ClipboardCmd {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.name.starts_with("READ") {
             write!(f, "READ:")
+        } else if self.name.starts_with("CLEAR") {
+            write!(f, "CLEAR:")
         } else {
             if let Some(txt) = &self.text {
                 write!(f, "WRITE:{}", txt)
@@ -24,10 +32,42 @@ impl std::fmt::Display for ClipboardCmd {
     }
 }
 
+struct AcceptSpecificCertsVerifier {
+    certs: Vec<rustls::Certificate>,
+}
+
+impl rustls::client::ServerCertVerifier for AcceptSpecificCertsVerifier {
+    fn verify_server_cert(
+        &self,
+        end_entity: &Certificate,
+        _intermediates: &[Certificate],
+        _server_name: &ServerName,
+        _scts: &mut dyn Iterator<Item = &[u8]>,
+        _ocsp_response: &[u8],
+        _now: SystemTime,
+    ) -> Result<ServerCertVerified, rustls::Error> {
+        for cert in &self.certs {
+            if end_entity == cert {
+                return Ok(rustls::client::ServerCertVerified::assertion());
+            }
+        }
+
+        return Err(rustls::Error::General("Unknown certificate issuer".to_string()));
+    }
+}
+
 pub fn get_clipboard_contents() -> Result<String, Box<dyn Error + Send + Sync>> {
     use copypasta::{ClipboardContext, ClipboardProvider};
     let mut ctx = ClipboardContext::new()?;
-    Ok(format!("{}", ctx.get_contents()?))
+
+    // Exception under Windows when the clipboard is empty.
+    // Need to revisit it at some point.
+    let ret = match ctx.get_contents() {
+        Ok(data) => data,
+        Err(_) => String::new(),
+    };
+
+    Ok(format!("{}", ret))
 }
 
 #[cfg(not(any(target_os = "windows", target_os = "macos")))]
@@ -50,32 +90,51 @@ pub fn set_clipboard_contents(clipboard_text: String) -> Result<(), Box<dyn Erro
     Ok(())
 }
 
-pub fn send_cmd(server_host: &str, port_number: u16, clipboard_cmd: ClipboardCmd) -> Result<(), Box<dyn Error + Send + Sync>> {
+pub fn send_cmd(
+    server_host: &str,
+    port_number: u16,
+    key_pub_loc: &str,
+    clipboard_cmd: ClipboardCmd,
+) -> Result<(), Box<dyn Error + Send + Sync>> {
     let input = format!("{}", clipboard_cmd);
+    let key_pub_bytes = fs::read(key_pub_loc)?;
 
-    match TcpStream::connect(format!("{}:{}", server_host, port_number)) {
-        Ok(mut stream) => {
-            let request = input.as_bytes();
-            stream.write(request)?;
+    let config = rustls::ClientConfig::builder()
+        .with_safe_defaults()
+        .with_custom_certificate_verifier(Arc::new(AcceptSpecificCertsVerifier {
+            certs: vec![Certificate(key_pub_bytes)],
+        }))
+        .with_no_client_auth();
 
-            let mut reader = BufReader::new(&stream);
-            let mut buf = String::new();
-            reader.read_to_string(&mut buf).unwrap();
+    let addr = format!("{}:{}", server_host, port_number);
+    let request = input.as_bytes();
 
-            let response = buf.clone();
+    // Just need to resolve a domain, as IP addresses are not supported to use the actual server IP.
+    // See also https://docs.rs/rustls/latest/rustls/enum.ServerName.html.
+    let dns_name = rustls::ServerName::try_from("localhost")
+        .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "Invalid dnsname"))?;
 
-            if response.starts_with("SUCCESS:") {
-                if input.starts_with("READ:") {
-                    let clipboard_text = response.chars().skip("SUCCESS:".len()).collect();
-                    set_clipboard_contents(clipboard_text)?;
-                }
-            } else {
-                return Err(response.into());
+    let mut socket = net::TcpStream::connect(addr)?;
+    let mut connection = rustls::ClientConnection::new(Arc::new(config), dns_name)?;
+    let mut tls = rustls::Stream::new(&mut connection, &mut socket);
+
+    tls.write_all(request)?;
+
+    let mut response = String::new();
+    tls.read_to_string(&mut response)?;
+
+    if response.starts_with("SUCCESS:") {
+        if input.starts_with("READ:") || input.starts_with("CLEAR:") {
+            let mut clipboard_text: String = response.chars().skip("SUCCESS:".len()).collect();
+
+            if clipboard_text.len() == 0 && cfg!(target_os = "windows") {
+                clipboard_text.push_str("\0"); // workaround or MS expectation???
             }
-        },
-        Err(ex) => {
-            return Err(format!("Could not connect to clipboard server at '{}:{}'! {}", server_host, port_number, ex.to_string()).into());
+
+            set_clipboard_contents(clipboard_text)?;
         }
+    } else {
+        return Err(response.into());
     }
 
     Ok(())

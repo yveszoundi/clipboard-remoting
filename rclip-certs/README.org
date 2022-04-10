@@ -1,0 +1,25 @@
+#+TITLE: README
+
+* What is this?
+=rclip= now requires SSL for encrypting traffic over the network (local network by default).
+- In early versions, all the data was passed around in plain text, which could be problematic (sensitive data such as passwords).
+- While the primary use case of =rclip= is text sharing within an internal machine network (host and local virtual machines), you can probably share clipboard text over the internet or the intranet.
+
+* How is this being used?
+On the host running the =rclip server=, a self-signed certificate is generated (Please check the =make_cert.sh= script).
+- The public and private keys are exported in [[https://wiki.openssl.org/index.php/DER][DER]] format.
+- The public key then needs to be copied to all the machines running the =rclip client=, via [[https://linux.die.net/man/1/scp][scp]] for example.
+
+* What is required?
+Please use the =make_cert.sh= script to generate self-signed SSL certificates.
+You'll need a recent enough version of [[https://www.openssl.org/][OpenSSL]] for "extended arguments" (DNS and IP address of the server).
+
+** Under Linux, MacOS or BSD
+- On MacOS, please adjust the script as needed to reflect the location of your =openssl= command. It needs to be a recent version instead of the default shipping with MacOS (i.e. [[https://brew.sh/][Homebrew]] installation of openssl).
+- On other UNIX/Linux systems, the default =openssl= command is invoked.
+
+** Under Windows
+- You can either install OpenSSL via a package manager ([[https://community.chocolatey.org/packages/openssl][Chocolatey]], [[https://winget.run/pkg/ShiningLight/OpenSSL][Winget]], etc.) or via any Windows binary available.
+- [[https://docs.microsoft.com/en-us/windows/wsl/install][WSL]] probaly provides a recent OpenSSL version out of the box.
+
+
