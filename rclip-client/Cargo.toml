@@ -1,9 +1,14 @@
 [package]
 name = "rclip-client"
-version = "0.0.2"
+version = "1.0.0"
 edition = "2018"
 description = "rclip clipboard client" 
-
+keywords = ["clipboard", "remoting"]
+license = "GPL"
+repository = "https://github.com/yveszoundi/rclip"
+authors = [
+	"Yves Zoundi <yves_zoundi@hotmail.com>"
+]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [[bin]]
@@ -18,6 +23,7 @@ path = "src/main_gui.rs"
 clap = "2.33.3"
 copypasta = "0.7.1"
 copypasta-ext = "0.3.7"
+rustls = { version = "0.20.4", features = ["dangerous_configuration"] }
 
 [target.'cfg(not(any(target_os = "openbsd", target_os = "freebsd", target_os ="netbsd" )))'.dependencies]
 fltk = { version = "1.2.26", features = ["fltk-bundled"] }
