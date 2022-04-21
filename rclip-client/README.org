@@ -81,3 +81,11 @@ Without any arguments, the following flags are defaulted.
   ./target/debug/rclip-client-cli --command WRITE --der-cert-pub pub_key_file_location.der
 #+end_src
 
+** Optional configuration file
+
+It can quickly become cumbersome specifying continuously parameters such as the server details (host and port), as well as the relevant public key path.
+
+*** Config file
+
+
+*** Certificate file

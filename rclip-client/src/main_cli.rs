@@ -1,5 +1,7 @@
 use clap::{App, Arg};
+use rclip_config;
 use std::error::Error;
+use std::path::Path;
 
 mod common;
 
@@ -13,7 +15,6 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
                 .long("host")
                 .help("Server host")
                 .required(false)
-                .default_value(common::DEFAULT_SERVER_HOST_STR)
                 .takes_value(true),
         )
         .arg(
@@ -21,7 +22,6 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
                 .long("port")
                 .help("Server port")
                 .required(false)
-                .default_value(common::DEFAULT_SERVER_PORT_STR)
                 .takes_value(true),
         )
         .arg(
@@ -44,32 +44,53 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
             Arg::with_name("der-cert-pub")
                 .long("der-cert-pub")
                 .help("Public DER certificate key")
-                .required(true)
+                .required(false)
                 .takes_value(true),
         );
 
     let run_matches = app.to_owned().get_matches();
 
-    let server_host = match run_matches.value_of("host") {
-        Some(proposed_hostname) => proposed_hostname,
-        None => common::DEFAULT_SERVER_HOST_STR,
+    let mut client_config =
+        match rclip_config::load_default_config(common::DEFAULT_CONFIG_FILENAME_CLIENT) {
+            Ok(cfg) => cfg,
+            Err(e) => {
+                eprintln!("Warn: Error parsing configuration file: {}!", e.to_string());
+                rclip_config::ClientConfig::default()
+            }
+        };
+
+    if client_config.certificates.der_cert_pub.is_none() {
+        client_config.certificates.der_cert_pub =
+            rclip_config::resolve_default_cert_path(rclip_config::DEFAULT_FILENAME_DER_CERT_PUB);
+    }
+
+    if let Some(proposed_host) = run_matches.value_of("host") {
+        client_config.server.host = Some(proposed_host.to_string());
+    }
+
+    if let Some(proposed_port) = run_matches.value_of("port") {
+        client_config.server.port = Some(proposed_port.parse::<u16>()?)
+    }
+
+    if let Some(key_pub_loc) = run_matches.value_of("der-cert-pub") {
+        client_config.certificates.der_cert_pub = Some(key_pub_loc.to_string());
     };
 
-    let server_port = match run_matches.value_of("port") {
-        Some(proposed_hostname) => proposed_hostname,
-        None => common::DEFAULT_SERVER_PORT_STR,
-    };
+    if client_config.certificates.der_cert_pub.is_none() {
+        return Err("Please provide the public certificate argument for --der-cert-pub.".into());
+    }
 
-    let cmd_text_opt = if let Some(xx) = run_matches.value_of("text") {
-        Some(xx.to_string())
-    } else {
-        None
-    };
+    if let Some(key_loc) = client_config.certificates.der_cert_pub.clone() {
+        let key_path = Path::new(&key_loc);
 
-    let proposed_cmd = match run_matches.value_of("command") {
-        Some(cmd) => cmd,
-        None => "READ",
-    };
+        if !key_path.exists() {
+            return Err(format!("The public key file doesn't exists at '{}'!", &key_loc).into());
+        }
+    }
+
+    let cmd_text_opt = run_matches.value_of("text").map(|i| i.to_string()).or(None);
+
+    let proposed_cmd = run_matches.value_of("command").unwrap_or("READ");
 
     let clipboard_cmd = match proposed_cmd {
         "READ" => common::ClipboardCmd {
@@ -88,22 +109,20 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
                     if let Ok(clipboard_contents) = common::get_clipboard_contents() {
                         Some(clipboard_contents)
                     } else {
-                        return Err("Could not acquire clipboard contents".into());
+                        return Err("Could not acquire clipboard contents.".into());
                     }
                 }
             },
         },
     };
 
-    let der_cert_pub = match run_matches.value_of("der-cert-pub") {
-        Some(der_cert_path) => der_cert_path,
-        None => return Err("Cannot find public certificate".into()),
-    };
-
-    common::send_cmd(
-        server_host,
-        server_port.parse::<u16>()?,
-        der_cert_pub,
-        clipboard_cmd,
-    )
+    if let (Some(server_host), Some(server_port), Some(der_cert_pub)) = (
+        client_config.server.host,
+        client_config.server.port,
+        client_config.certificates.der_cert_pub,
+    ) {
+        common::send_cmd(server_host, server_port, der_cert_pub, clipboard_cmd)
+    } else {
+        Err("Client error! Some required parameters are were not provided: missing public certificate?".into())
+    }
 }

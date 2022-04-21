@@ -1,4 +1,7 @@
+#![windows_subsystem = "windows"]
+
 use fltk::{app, button, dialog, group, input, prelude::*, window};
+use rclip_config;
 use std::cell::RefCell;
 use std::error::Error;
 use std::rc::Rc;
@@ -17,7 +20,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let mut wind = window::Window::default()
         .with_size(430, 230)
         .center_screen()
-        .with_label(wind_title.as_str());
+        .with_label(&wind_title);
     let wind_copy = wind.clone();
     let wind_ref_receive = wind.clone();
     let wind_ref_clear = wind.clone();
@@ -35,11 +38,18 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
             .with_size(200, 20)
             .with_label("Server host"),
     ));
+
+    let client_config =
+        match rclip_config::load_default_config(common::DEFAULT_CONFIG_FILENAME_CLIENT) {
+            Ok(cfg) => cfg,
+            _ => rclip_config::ClientConfig::default(),
+        };
+
     let input_host_copy = input_host.clone();
     input_host.borrow_mut().set_tooltip("IP address to bind to");
-    input_host
-        .borrow_mut()
-        .set_value(common::DEFAULT_SERVER_HOST_STR);
+    if let Some(server_host) = client_config.server.host {
+        input_host.borrow_mut().set_value(&server_host);
+    }
 
     group_host.end();
 
@@ -54,10 +64,14 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
             .with_label("Server port"),
     ));
     let input_port_copy = input_port.clone();
-    input_port.borrow_mut().set_tooltip("IP address to bind to");
-    input_port
-        .borrow_mut()
-        .set_value(common::DEFAULT_SERVER_PORT_STR);
+
+    if let Some(server_port) = client_config.server.port {
+        let port_number_text = format!("{}", server_port);
+
+        input_port.borrow_mut().set_value(&port_number_text);
+    }
+
+    input_port.borrow_mut().set_tooltip("Server port number");
     group_port.end();
 
     let mut group_pub_cert = group::Pack::default()
@@ -70,6 +84,13 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
             .with_size(200, 20)
             .with_label("Public key"),
     ));
+
+    if let Some(pub_key_loc) =
+        rclip_config::resolve_default_cert_path(rclip_config::DEFAULT_FILENAME_DER_CERT_PUB)
+    {
+        input_pub_cert.borrow_mut().set_value(&pub_key_loc);
+    }
+
     let input_pub_cert_copy = input_pub_cert.clone();
     let input_pub_cert_copy2 = input_pub_cert.clone();
     let input_pub_cert_copy3 = input_pub_cert.clone();
@@ -89,8 +110,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
             if !selected_filename.as_os_str().is_empty() {
                 let path_name = format!("{}", dlg.filename().display());
-                let path_str = path_name.as_str();
-                input_pub_cert.borrow_mut().set_value(path_str);
+                input_pub_cert.borrow_mut().set_value(&path_name);
             }
         }
     });
@@ -126,12 +146,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
         let server_port = port_text.parse::<u16>()?;
 
-        match common::send_cmd(
-            host_text.as_str(),
-            server_port,
-            key_pub_der.as_str(),
-            clipboard_cmd,
-        ) {
+        match common::send_cmd(host_text, server_port, key_pub_der, clipboard_cmd) {
             Ok(_) => Ok(()),
             Err(ex) => Err(format!("{}", ex.to_string()).into()),
         }
