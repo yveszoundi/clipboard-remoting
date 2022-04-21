@@ -1,12 +1,12 @@
 #+TITLE: README
 
 * What is this?
-=rclip= is a simple solution that allows sharing clipboard data (text only), over a network (local or internet).
+=rclip= is a simple solution that allows sharing clipboard text over a network (local or internet).
 
-- =rclip= was created because I wasn't able to quickly get a simple solution working for [[https://en.wikipedia.org/wiki/QEMU][QEMU]] ([[https://gitlab.freedesktop.org/spice/spice/-/issues/39][spice support]])
+- =rclip= was created because I wasn't able to quickly get [[https://en.wikipedia.org/wiki/QEMU][QEMU]] working ([[https://gitlab.freedesktop.org/spice/spice/-/issues/39][spice support]]).
 - Going forward, I also need a simple clipboard solution that provides a consistent workflow:
-  - The tool should work on several operating systems (Linux, MacOS, Windows, FreeBSD, NetBSD and OpenBSD).
-  - The tool should behave more or less the same regardless of the virtualization option ([[https://www.qemu.org/][QEMU]], [[https://www.vmware.com/nl/products/workstation-player.html][VMWare]], [[https://www.virtualbox.org/][VirtualBox]], etc.).
+  - Interoperability with several operating systems (Linux, MacOS, Windows, BSD).
+  - Independence from the virtualization tool ([[https://www.qemu.org/][QEMU]], [[https://www.vmware.com/nl/products/workstation-player.html][VMWare]], etc.).
 
 This is more or less how it works.
 [[./images/diagram.png]]
@@ -20,9 +20,10 @@ While SSL support has been added, *please do not use for anything sensitive over
 1. On the =server=:
    - Generate certificate files accordingly to the documentation in the =rclip-certs= folder.
    - Copy the =rclip-server= binary to the location of your choice.
-2. Upload the =public key= and the =rclip-client= binary to all the machines communicating with the the server =rclip-server=.
-3. Run the =rclip-server=.
-4. Start sharing textual content via the =rclip-client= (GUI or CLI client).
+   - Run the =rclip-server= (optional configuration file).
+2. On the =client(s)=:
+   - Upload the =public key= and the =rclip-client= binary
+   - Start sharing textual content across machines via the =rclip-client= (GUI or CLI client).
   
 ** Client usage under Linux/BSD
 
@@ -38,24 +39,26 @@ On the /target machine/, where I want to paste text to:
   
 ** Client usage under MacOS
 
-Instead of the GUI client, it's more convenient IMHO to [[https://apple.stackexchange.com/questions/235167/how-to-run-a-shell-script-from-an-applescript][wrap the CLI client with "AppleScript"]]. The scripts can be [[https://support.apple.com/guide/script-editor/access-scripts-using-the-script-menu-scpedt27975/mac][invoked from the global menubar]].
-
-That would result effectively into 3 scripts for the supported =rclip= operations (READ, WRITE and CLEAR).
+Instead of the GUI client, it's more convenient IMHO to [[https://apple.stackexchange.com/questions/235167/how-to-run-a-shell-script-from-an-applescript][wrap the CLI client with "AppleScript"]]. The scripts can be [[https://support.apple.com/guide/script-editor/access-scripts-using-the-script-menu-scpedt27975/mac][invoked from the global menubar]]. That would result effectively into 3 scripts for the supported =rclip= operations (READ, WRITE and CLEAR).
 
 ** Usage scenario under Windows
 
-The GUI client is more user friendly. In the future, it might be worth looking into a popup menu (i.e. tray icon in the taskbar).
+The GUI client is more user friendly. In the future, it might be worth looking into a popup menu (systray, etc.).
 
 * What is required?
 
+** Runtime dependencies
 - *Operating System*: Linux, MacOS, Windows, BSD (FreeBSD, OpenBSD, NetBSD).
-- Please consult the =rclip-server= and =rclip-client= folders for build instructions.
-- There are binaries published for Windows, MacOS, Linux (CLI only pre-built) and BSD (CLI only pre-built).
+- *Pre-Built binaries*: There are binaries published for Windows, MacOS, Linux (CLI only pre-built) and BSD (CLI only pre-built).
+- On Linux and BSD systems
+  For the =rclip-server=, a standalone statically built binary is available
+  For the =rclip-client=, additional shared libraries are required (mostly XCB for clipboard interaction)
 
-
-Notes:
-- Pre-built desktop GUI binaries are not available for Linux, as it requires building against every single target Linux distribution (dynamic linking issues, version of dependencies, etc.).
-- Please note that the graphical user interface doesn't build under BSD platforms, you can only use the command-line client.
+** Build dependencies and other Notes:
+- If you cannot use pre-built binaries or if you would rather build it yourself, please check the =rclip-server= and =rclip-client= folders for instructions. Pre-built desktop GUI binaries are not available for Linux, as it requires building against every single target Linux distribution (dynamic linking issues, version of dependencies, etc.).
+- Please note that the graphical user interface doesn't build on BSD platforms, you can only use the command-line client.
+- Under UNIX like systems, only =X11= has been tested for the clipboard client (=rclip-client=). In theory, under =Wayland= the graphical desktop client is viable while there could be issues with the CLI for clipboard persistence mode.
+   
 
 * What is potentially next?
 

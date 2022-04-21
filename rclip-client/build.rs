@@ -1,6 +1,4 @@
 fn main() {
-    println!("cargo:rustc-arg=-C target-feature=+crt-static");
-    
     // Deal with BSD platforms linker issues (XCB and similar libraries)
     if cfg!(target_os = "openbsd") {
         println!("cargo:rustc-link-search=/usr/X11R6/lib");
