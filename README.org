@@ -1,7 +1,7 @@
 #+TITLE: README
 
 * What is this?
-=rclip= is a simple solution that allows sharing clipboard text over a network (local or internet).
+=rclip= is a client-server solution that allows sharing clipboard text over a network.
 
 - =rclip= was created because I wasn't able to quickly get [[https://en.wikipedia.org/wiki/QEMU][QEMU]] working ([[https://gitlab.freedesktop.org/spice/spice/-/issues/39][spice support]]).
 - Going forward, I also need a simple clipboard solution that provides a consistent workflow:
@@ -11,21 +11,25 @@
 This is more or less how it works.
 [[./images/diagram.png]]
 
-While SSL support has been added, *please do not use for anything sensitive over the Internet!*. The primary use case is for sharing text over an internal local machine network (between a host and guest virtual machines).
+While SSL support has been enforced, *please do not use for anything sensitive over the Internet!*. The primary use case is for sharing text over an internal local machine network (between a host and guest virtual machines).
 
 * How is this being used?
 
 ** Overview
 
 1. On the =server=:
-   - Generate certificate files accordingly to the documentation in the =rclip-certs= folder.
+   - Generate certificate files accordingly to the documentation in the =support= directory.
    - Copy the =rclip-server= binary to the location of your choice.
-   - Run the =rclip-server= (optional configuration file).
+   - Create optionally a configuration file, with certificates at pre-defined locations
+   - Run the =rclip-server=.
 2. On the =client(s)=:
-   - Upload the =public key= and the =rclip-client= binary
+   - Upload the server =public key= and the =rclip-client= binary
+   - Create optionally a configuration file, with the public certificate key at pre-defined locations
    - Start sharing textual content across machines via the =rclip-client= (GUI or CLI client).
+
+I run the =rclip-server= inside a minimal [[https://www.alpinelinux.org/][Alpine Linux]] virtual machine (100 MB of RAM).
   
-** Client usage under Linux/BSD
+** Client workflow under Linux/BSD
 
 I use a tiling window manager under UNIX like platforms (typically [[https://en.wikipedia.org/wiki/Dwm][dwm]]).
 
@@ -37,17 +41,18 @@ On the /target machine/, where I want to paste text to:
 - =ctrl-t shift-v= fetches the remote clipboard server into the local machine clipboard.
 - =ctrl-v= pastes text from the local machine clipboard.
   
-** Client usage under MacOS
+** Client workflow under MacOS
 
 Instead of the GUI client, it's more convenient IMHO to [[https://apple.stackexchange.com/questions/235167/how-to-run-a-shell-script-from-an-applescript][wrap the CLI client with "AppleScript"]]. The scripts can be [[https://support.apple.com/guide/script-editor/access-scripts-using-the-script-menu-scpedt27975/mac][invoked from the global menubar]]. That would result effectively into 3 scripts for the supported =rclip= operations (READ, WRITE and CLEAR).
 
-** Usage scenario under Windows
+** Workflow under Windows
 
 The GUI client is more user friendly. In the future, it might be worth looking into a popup menu (systray, etc.).
 
 * What is required?
 
 ** Runtime dependencies
+
 - *Operating System*: Linux, MacOS, Windows, BSD (FreeBSD, OpenBSD, NetBSD).
 - *Pre-Built binaries*: There are binaries published for Windows, MacOS, Linux (CLI only pre-built) and BSD (CLI only pre-built).
 - On Linux and BSD systems
@@ -55,9 +60,10 @@ The GUI client is more user friendly. In the future, it might be worth looking i
   For the =rclip-client=, additional shared libraries are required (mostly XCB for clipboard interaction)
 
 ** Build dependencies and other Notes:
+
 - If you cannot use pre-built binaries or if you would rather build it yourself, please check the =rclip-server= and =rclip-client= folders for instructions. Pre-built desktop GUI binaries are not available for Linux, as it requires building against every single target Linux distribution (dynamic linking issues, version of dependencies, etc.).
-- Please note that the graphical user interface doesn't build on BSD platforms, you can only use the command-line client.
-- Under UNIX like systems, only =X11= has been tested for the clipboard client (=rclip-client=). In theory, under =Wayland= the graphical desktop client is viable while there could be issues with the CLI for clipboard persistence mode.
+- The graphical user interface doesn't build on BSD platforms, you can only use the command-line client.
+- On UNIX-like systems, only =X11= has been tested for the clipboard client (=rclip-client=). In theory, under =Wayland= the graphical desktop client is probably viable (potential issues with the CLI for clipboard persistence).
    
 
 * What is potentially next?
