@@ -43,7 +43,9 @@ On the /target machine/, where I want to paste text to:
   
 ** Client workflow under MacOS
 
-Instead of the GUI client, it's more convenient IMHO to [[https://apple.stackexchange.com/questions/235167/how-to-run-a-shell-script-from-an-applescript][wrap the CLI client with "AppleScript"]]. The scripts can be [[https://support.apple.com/guide/script-editor/access-scripts-using-the-script-menu-scpedt27975/mac][invoked from the global menubar]]. That would result effectively into 3 scripts for the supported =rclip= operations (READ, WRITE and CLEAR).
+Instead of the GUI client, it's more convenient IMHO to [[https://apple.stackexchange.com/questions/235167/how-to-run-a-shell-script-from-an-applescript][wrap the CLI client with "AppleScript"]].
+- The scripts can be [[https://support.apple.com/guide/script-editor/access-scripts-using-the-script-menu-scpedt27975/mac][invoked from the global menubar]].
+- That results effectively into 3 scripts for supported operations (READ, WRITE and CLEAR).
 
 ** Workflow under Windows
 
@@ -54,10 +56,10 @@ The GUI client is more user friendly. In the future, it might be worth looking i
 ** Runtime dependencies
 
 - *Operating System*: Linux, MacOS, Windows, BSD (FreeBSD, OpenBSD, NetBSD).
-- *Pre-Built binaries*: There are binaries published for Windows, MacOS, Linux (CLI only pre-built) and BSD (CLI only pre-built).
-- On Linux and BSD systems
-  For the =rclip-server=, a standalone statically built binary is available
-  For the =rclip-client=, additional shared libraries are required (mostly XCB for clipboard interaction)
+- *Pre-Built binaries*: There are binaries published for Windows, MacOS, Linux (CLI only) and BSD (CLI only).
+- *On Linux and BSD systems*
+  For the =rclip-server=, a standalone statically-built binary is available.
+  For the =rclip-client=, additional libraries are required (mostly XCB for clipboard interaction).
 
 ** Build dependencies and other Notes:
 
