@@ -41,7 +41,13 @@ Configuration related code shared between the client and the server components (
 
 * Configuration files location
 
-Configuration files at locations following operating system conventions:
-- Under Linux, =$XDG_CONFIG_HOME/rclip= and =%XDG_DATA_HOME/rclip=.
-- Under MacOS, =$HOME/Library/Application\ Support/rclip=.
-- Under Windows, =%APPDATA%\rclip=.
+Configuration files at locations following operating system conventions.
+
+|------------------+-----------------------------------------------------|
+| Operating System | Location                                            |
+|------------------+-----------------------------------------------------|
+| Under Linux      | =$XDG_CONFIG_HOME/rclip= and =%XDG_DATA_HOME/rclip= |
+| Under MacOS      | =$HOME/Library/Application\ Support/rclip=          |
+| Under Windows    | =%APPDATA%\rclip=                                   |
+|------------------+-----------------------------------------------------|
+
