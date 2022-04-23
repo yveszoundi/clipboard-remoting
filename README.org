@@ -58,8 +58,8 @@ The GUI client is more user friendly. In the future, it might be worth looking i
 - *Operating System*: Linux, MacOS, Windows, BSD (FreeBSD, OpenBSD, NetBSD).
 - *Pre-Built binaries*: There are binaries published for Windows, MacOS, Linux (CLI only) and BSD (CLI only).
 - *On Linux and BSD systems*
-  For the =rclip-server=, a standalone statically-built binary is available.
-  For the =rclip-client=, additional libraries are required (mostly XCB for clipboard interaction).
+  - For the =rclip-server=, a standalone statically-built binary is available.
+  - For the =rclip-client=, additional libraries are required (mostly XCB for clipboard interaction).
 
 ** Build dependencies and other Notes:
 
