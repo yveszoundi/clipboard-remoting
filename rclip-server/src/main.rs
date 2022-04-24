@@ -68,13 +68,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
     };
 
-    if server_config.certificates.der_cert_pub.is_none() {
-        server_config.certificates.der_cert_pub =
+    if server_config.certificate.der_cert_pub.is_none() {
+        server_config.certificate.der_cert_pub =
             rclip_config::resolve_default_cert_path(rclip_config::DEFAULT_FILENAME_DER_CERT_PUB);
     }
 
-    if server_config.certificates.der_cert_priv.is_none() {
-        server_config.certificates.der_cert_priv =
+    if server_config.certificate.der_cert_priv.is_none() {
+        server_config.certificate.der_cert_priv =
             rclip_config::resolve_default_cert_path(FILENAME_DER_CERT_PRIV);
     }
 
@@ -87,22 +87,22 @@ async fn main() -> Result<(), Box<dyn Error>> {
     }
 
     if let Some(key_pub_loc) = run_matches.value_of("der-cert-pub") {
-        server_config.certificates.der_cert_pub = Some(key_pub_loc.to_string());
+        server_config.certificate.der_cert_pub = Some(key_pub_loc.to_string());
     };
 
     if let Some(key_priv_loc) = run_matches.value_of("der-cert-priv") {
-        server_config.certificates.der_cert_priv = Some(key_priv_loc.to_string());
+        server_config.certificate.der_cert_priv = Some(key_priv_loc.to_string());
     };
 
-    if server_config.certificates.der_cert_pub.is_none() {
+    if server_config.certificate.der_cert_pub.is_none() {
         return Err("Please provide the public certificate argument for --der-cert-pub.".into());
     }
 
-    if server_config.certificates.der_cert_priv.is_none() {
+    if server_config.certificate.der_cert_priv.is_none() {
         return Err("Please provide the private certificate argument for --der-cert-priv.".into());
     }
 
-    if let Some(key_loc) = server_config.certificates.der_cert_priv.clone() {
+    if let Some(key_loc) = server_config.certificate.der_cert_priv.clone() {
         let key_path = Path::new(&key_loc);
 
         if !key_path.exists() {
@@ -110,7 +110,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    if let Some(key_loc) = server_config.certificates.der_cert_pub.clone() {
+    if let Some(key_loc) = server_config.certificate.der_cert_pub.clone() {
         let key_path = Path::new(&key_loc);
 
         if !key_path.exists() {
@@ -121,8 +121,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     if let (Some(server_host), Some(server_port), Some(key_priv_loc), Some(key_pub_loc)) = (
         server_config.server.host,
         server_config.server.port,
-        server_config.certificates.der_cert_priv,
-        server_config.certificates.der_cert_pub,
+        server_config.certificate.der_cert_priv,
+        server_config.certificate.der_cert_pub,
     ) {
         serve(
             app.get_name(),

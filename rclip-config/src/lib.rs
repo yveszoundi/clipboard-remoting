@@ -29,28 +29,28 @@ impl Default for Server {
 #[serde(default)]
 pub struct ServerConfig {
     pub server: Server,
-    pub certificates: ServerCertificates,
+    pub certificate: ServerCertificate,
 }
 
 impl Default for ServerConfig {
     fn default() -> Self {
         Self {
             server: Server::default(),
-            certificates: ServerCertificates::default(),
+            certificate: ServerCertificate::default(),
         }
     }
 }
 
 #[derive(Deserialize)]
 #[serde(default)]
-pub struct ServerCertificates {
+pub struct ServerCertificate {
     #[serde(rename(deserialize = "der-cert-pub"))]
     pub der_cert_pub: Option<String>,
     #[serde(rename(deserialize = "der-cert-priv"))]
     pub der_cert_priv: Option<String>,
 }
 
-impl Default for ServerCertificates {
+impl Default for ServerCertificate {
     fn default() -> Self {
         Self {
             der_cert_pub: None,
@@ -61,12 +61,12 @@ impl Default for ServerCertificates {
 
 #[derive(Deserialize)]
 #[serde(default)]
-pub struct ClientCertificates {
+pub struct ClientCertificate {
     #[serde(rename(deserialize = "der-cert-pub"))]
     pub der_cert_pub: Option<String>,
 }
 
-impl Default for ClientCertificates {
+impl Default for ClientCertificate {
     fn default() -> Self {
         Self {
             der_cert_pub: None,
@@ -78,14 +78,14 @@ impl Default for ClientCertificates {
 #[serde(default)]
 pub struct ClientConfig {
     pub server: Server,
-    pub certificates: ClientCertificates,
+    pub certificate: ClientCertificate,
 }
 
 impl Default for ClientConfig {
     fn default() -> Self {
         Self {
             server: Server::default(),
-            certificates: ClientCertificates::default(),
+            certificate: ClientCertificate::default(),
         }
     }
 }

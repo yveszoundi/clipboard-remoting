@@ -59,8 +59,8 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
             }
         };
 
-    if client_config.certificates.der_cert_pub.is_none() {
-        client_config.certificates.der_cert_pub =
+    if client_config.certificate.der_cert_pub.is_none() {
+        client_config.certificate.der_cert_pub =
             rclip_config::resolve_default_cert_path(rclip_config::DEFAULT_FILENAME_DER_CERT_PUB);
     }
 
@@ -73,14 +73,14 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     }
 
     if let Some(key_pub_loc) = run_matches.value_of("der-cert-pub") {
-        client_config.certificates.der_cert_pub = Some(key_pub_loc.to_string());
+        client_config.certificate.der_cert_pub = Some(key_pub_loc.to_string());
     };
 
-    if client_config.certificates.der_cert_pub.is_none() {
+    if client_config.certificate.der_cert_pub.is_none() {
         return Err("Please provide the public certificate argument for --der-cert-pub.".into());
     }
 
-    if let Some(key_loc) = client_config.certificates.der_cert_pub.clone() {
+    if let Some(key_loc) = client_config.certificate.der_cert_pub.clone() {
         let key_path = Path::new(&key_loc);
 
         if !key_path.exists() {
@@ -119,7 +119,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     if let (Some(server_host), Some(server_port), Some(der_cert_pub)) = (
         client_config.server.host,
         client_config.server.port,
-        client_config.certificates.der_cert_pub,
+        client_config.certificate.der_cert_pub,
     ) {
         common::send_cmd(server_host, server_port, der_cert_pub, clipboard_cmd)
     } else {

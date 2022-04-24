@@ -8,21 +8,23 @@
   - Interoperability with several operating systems (Linux, MacOS, Windows, BSD).
   - Independence from the virtualization tool ([[https://www.qemu.org/][QEMU]], [[https://www.vmware.com/nl/products/workstation-player.html][VMWare]], etc.).
 
-This is more or less how it works.
+The primary use-case is for text within a local machine network (host and guest virtual machines).
+    
+This is more or less how it works (primary use-case illustration).
 [[./images/diagram.png]]
 
-While SSL support has been enforced, *please do not use for anything sensitive over the Internet!*. The primary use case is for sharing text over an internal local machine network (between a host and guest virtual machines).
+*While traffic over SSL is enforced, please do not use for anything sensitive over the Internet!*. 
 
 * How is this being used?
 
 ** Overview
 
-1. On the =server=:
+1. On the =server= ([[./rclip-server][rclip-server]]):
    - Generate certificate files accordingly to the documentation in the =support= directory.
    - Copy the =rclip-server= binary to the location of your choice.
    - Create optionally a configuration file, with certificates at pre-defined locations
    - Run the =rclip-server=.
-2. On the =client(s)=:
+2. On the =client(s)= ([[./rclip-client][rclip-client]]):
    - Upload the server =public key= and the =rclip-client= binary
    - Create optionally a configuration file, with the public certificate key at pre-defined locations
    - Start sharing textual content across machines via the =rclip-client= (GUI or CLI client).
@@ -31,9 +33,9 @@ I run the =rclip-server= inside a minimal [[https://www.alpinelinux.org/][Alpine
   
 ** Client workflow under Linux/BSD
 
-I use a tiling window manager under UNIX like platforms (typically [[https://en.wikipedia.org/wiki/Dwm][dwm]]).
+I run a tiling window manager under UNIX-like platforms (typically [[https://en.wikipedia.org/wiki/Dwm][dwm]]).
 
-On the /source machine/ where I'm copying text from:
+On the /source machine/, where I'm copying text from:
 - =ctrl-c= copies selected text to the local machine clipboard.
 - =ctrl-t shift-c= sends the local machine clipboard contents to the remote clipboard server.
 
@@ -58,8 +60,8 @@ The GUI client is more user friendly. In the future, it might be worth looking i
 - *Operating System*: Linux, MacOS, Windows, BSD (FreeBSD, OpenBSD, NetBSD).
 - *Pre-Built binaries*: There are binaries published for Windows, MacOS, Linux (CLI only) and BSD (CLI only).
 - *On Linux and BSD systems*
-  - For the =rclip-server=, a standalone statically-built binary is available.
-  - For the =rclip-client=, additional libraries are required (mostly XCB for clipboard interaction).
+  - For the [[./rclip-server][rclip-server]], a standalone statically-built binary is available.
+  - For the [[./rclip-client][rclip-client]], additional libraries are required (mostly [[https://en.wikipedia.org/wiki/XCB][XCB]] for clipboard interaction).
 
 ** Build dependencies and other Notes:
 

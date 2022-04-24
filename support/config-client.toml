@@ -4,5 +4,5 @@ title = "rclip client configuration"
 port = 10080
 host = "127.0.0.1"
 
-[certificates]
+[certificate]
 #der-cert-pub = "/home/user/.local/share/rclip/der-cert-pub.der"
