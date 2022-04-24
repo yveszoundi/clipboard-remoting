@@ -26,6 +26,40 @@ At the root of this project, open a command prompt and type =cargo build=.
 The command below starts the server on port =10080= and binds to =127.0.0.1=.
 
 #+begin_src sh
-  ./target/debug/rclip-server --der-cert-pub rclip-der-cert-pub.der --der-cert-priv rclip-der-cert-priv.der
+  ./target/release/rclip-server --der-cert-pub rclip-der-cert-pub.der --der-cert-priv rclip-der-cert-priv.der
 #+end_src
+
+** Optional configuration file
+
+It can become inconvenient to continously provide known command-line parameters.
+
+*** Sample configuration file
+
+#+begin_src conf-toml
+  title = "rclip server configuration"
+
+  [server]
+  port = 10080
+  host = "17.0.0.1"
+
+  [certificate]
+  #der-cert-pub = "/home/user/.local/share/rclip/der-cert-pub.der"
+  #der-cert-priv = "/home/user/.local/share/rclip/der-cert-priv.der"
+#+end_src
+
+/If the certificate paths are not explictly provided, they are resolved from a pre-defined location, per next section/.
+
+*** Configuration data location
+
+Notes:
+- Under MacOS and Windows, the configuration and certificate files reside in the same folder.
+- Under Linux/BSD, the config file is under =$XDG_CONFIG_HOME= and the certificates will be looked up under =$XDG_DATA_HOME=.
+
+|------------------+-----------------------------------------------------|
+| Operating System | Location                                            |
+|------------------+-----------------------------------------------------|
+| Under Linux/BSD  | =$XDG_CONFIG_HOME/rclip= and =$XDG_DATA_HOME/rclip= |
+| Under MacOS      | =$HOME/Library/Application\ Support/rclip=          |
+| Under Windows    | =%APPDATA%\rclip=                                   |
+|------------------+-----------------------------------------------------|
 

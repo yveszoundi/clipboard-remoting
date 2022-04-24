@@ -1,0 +1,35 @@
+#+TITLE: README
+
+* SSL certificates
+
+=rclip= now requires SSL for encrypting traffic over the network (local network by default).
+- In early versions, all the data was passed around in plain text, which could be problematic (sensitive data such as passwords).
+- While the primary use case of =rclip= is text sharing within an internal machine network (host and local virtual machines), you can probably share clipboard text over the internet or the intranet.
+  
+On the host running the =rclip-server=, a self-signed certificate is generated (Please check the =gencert.sh= script).
+- The public and private keys are generated on the =rclip-server= machine and then exported in [[https://wiki.openssl.org/index.php/DER][DER]] format.
+- The public key then needs to be copied to all the machines running the =rclip client=, via [[https://linux.die.net/man/1/scp][scp]] for example.
+
+** Under Linux, MacOS or BSD
+- On MacOS, please adjust the script as needed to reflect the location of your =openssl= command. It needs to be a recent version instead of the default shipping with MacOS (i.e. [[https://brew.sh/][Homebrew]] installation of openssl).
+- On other UNIX/Linux systems, the default =openssl= command is invoked.
+
+** Under Windows
+- You can either install OpenSSL via a package manager ([[https://community.chocolatey.org/packages/openssl][Chocolatey]], [[https://winget.run/pkg/ShiningLight/OpenSSL][Winget]], etc.) or via any Windows binary available.
+- [[https://docs.microsoft.com/en-us/windows/wsl/install][WSL]] probaly provides a recent OpenSSL version out of the box.
+
+* Sample configuration for the client and server
+
+=rclip= configuration files are expressed in TOML format. In this folder, you can find some examples:
+- =config-client.toml=
+- =config-server.toml=
+
+* Default location of files
+
+ As much as possible, =rclip= tries to following operating system conventions:
+- The [[https://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html][XDG base directory]] and the XDG user directory specifications on Linux
+  - The /toml/ files are searched in =XDG_CONFIG_HOME=
+  - The certificate files are search by default in =XDG_DATA_HOME=, unless overriden explicitly (/toml/ or command line parameter)
+- The [[https://developer.apple.com/library/content/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileSystemOverview/FileSystemOverview.html#//apple_ref/doc/uid/TP40010672-CH2-SW6][Standard Directories]] on macOS (=Library/Application\ Support= folder) stores both the /toml/ and /certificate/ files
+- The [[https://msdn.microsoft.com/en-us/library/windows/desktop/bb776911(v=vs.85).aspx][Known Folder]] system on Window (=AppData\Roaming= folder) stores both the /toml/ and /certificate/ files
+
