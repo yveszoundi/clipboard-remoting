@@ -8,8 +8,7 @@ use std::net;
 use std::sync::Arc;
 use std::time::SystemTime;
 
-pub const DEFAULT_SERVER_HOST_STR: &str = "127.0.0.1";
-pub const DEFAULT_SERVER_PORT_STR: &str = "10080";
+pub const DEFAULT_CONFIG_FILENAME_CLIENT: &str = "config-client.toml";
 
 pub struct ClipboardCmd {
     pub name: String,
@@ -52,7 +51,9 @@ impl rustls::client::ServerCertVerifier for AcceptSpecificCertsVerifier {
             }
         }
 
-        return Err(rustls::Error::General("Unknown certificate issuer".to_string()));
+        return Err(rustls::Error::General(
+            "Unknown certificate issuer.".to_string(),
+        ));
     }
 }
 
@@ -91,9 +92,9 @@ pub fn set_clipboard_contents(clipboard_text: String) -> Result<(), Box<dyn Erro
 }
 
 pub fn send_cmd(
-    server_host: &str,
+    server_host: String,
     port_number: u16,
-    key_pub_loc: &str,
+    key_pub_loc: String,
     clipboard_cmd: ClipboardCmd,
 ) -> Result<(), Box<dyn Error + Send + Sync>> {
     let input = format!("{}", clipboard_cmd);
@@ -107,6 +108,8 @@ pub fn send_cmd(
         .with_no_client_auth();
 
     let addr = format!("{}:{}", server_host, port_number);
+    println!("Connecting with server at address:'{}'.", addr);
+
     let request = input.as_bytes();
 
     // Just need to resolve a domain, as IP addresses are not supported to use the actual server IP.

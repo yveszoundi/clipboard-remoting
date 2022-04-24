@@ -1,0 +1,8 @@
+title = "rclip client configuration"
+
+[server]
+port = 10080
+host = "127.0.0.1"
+
+[certificate]
+#der-cert-pub = "/home/user/.local/share/rclip/der-cert-pub.der"

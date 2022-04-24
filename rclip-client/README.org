@@ -81,3 +81,36 @@ Without any arguments, the following flags are defaulted.
   ./target/debug/rclip-client-cli --command WRITE --der-cert-pub pub_key_file_location.der
 #+end_src
 
+** Optional configuration file
+
+It can become inconvenient to continously provide known command-line parameters.
+
+*** Sample configuration file
+
+#+begin_src conf-toml
+  title = "rclip client configuration"
+
+  [server]
+  port = 10080
+  host = "127.0.0.1"
+
+  [certificate]
+  #der-cert-pub = "/home/user/.local/share/rclip/der-cert-pub.der"
+#+end_src
+
+/If the public certificate path is not explictly provided, it's resolved from a pre-defined location, per next section/.
+
+*** Configuration data location
+
+Notes:
+- Under MacOS and Windows, the configuration file and public certificate reside in the same folder.
+- Under Linux/BSD, the config file is under =$XDG_CONFIG_HOME= and the public certificate is under =$XDG_DATA_HOME=.
+
+|------------------+-----------------------------------------------------|
+| Operating System | Location                                            |
+|------------------+-----------------------------------------------------|
+| Under Linux/BSD  | =$XDG_CONFIG_HOME/rclip= and =$XDG_DATA_HOME/rclip= |
+| Under MacOS      | =$HOME/Library/Application\ Support/rclip=          |
+| Under Windows    | =%APPDATA%\rclip=                                   |
+|------------------+-----------------------------------------------------|
+

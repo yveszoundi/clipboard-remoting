@@ -1,0 +1,53 @@
+#+TITLE: rclip-config README
+
+* Introduction
+
+Configuration related code shared between the client and the server components ([[https://toml.io/en/][TOML]] format).
+
+* Configuration data structures
+
+** Server configuration
+
+#+begin_src text
+  {
+    'server': {
+      'host': <hostname>,
+      'port': <port-number>    
+    },
+    certificates:
+    {
+      'der-cert-pub': <path-to-public-certificate>,
+      'der-cert-priv': <path-to-private-certificate>,    
+    }  
+  }
+#+end_src
+
+** Client configuration
+
+#+begin_src text
+  {
+    'server': {
+      'host': <hostname>,
+      'port': <port-number>    
+    },
+    certificates:
+    {
+      'der-cert-pub': <path-to-public-certificate>
+    }  
+  }
+
+#+end_src
+  
+
+* Configuration files location
+
+Configuration files at locations following operating system conventions.
+
+|------------------+-----------------------------------------------------|
+| Operating System | Location                                            |
+|------------------+-----------------------------------------------------|
+| Under Linux      | =$XDG_CONFIG_HOME/rclip= and =%XDG_DATA_HOME/rclip= |
+| Under MacOS      | =$HOME/Library/Application\ Support/rclip=          |
+| Under Windows    | =%APPDATA%\rclip=                                   |
+|------------------+-----------------------------------------------------|
+
