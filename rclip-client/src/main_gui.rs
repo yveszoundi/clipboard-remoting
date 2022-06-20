@@ -250,31 +250,29 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
                 let w = wid.w() - label_width - (SIZE_PACK_SPACING * 2);
                 let mut y = SIZE_PACK_SPACING;
                 let n = wids.len();
+                let fw = w - BUTTON_WIDTH - SIZE_PACK_SPACING;
 
                 for i in 0..n {
                     let wid_ref = &mut wids[i];
                     wid_ref.resize(label_width + SIZE_PACK_SPACING, y, w, ROW_HEIGHT);
 
                     if i != n - 1 {
-                        let mut j = wid_ref.children() - 1;
-                        let mut endx = w;
-
-                        while j >= 0 {
-                            if let Some(mut wid_child_ref) = wid_ref.child(j) {
+                        let k = wid_ref.children();
+                        let mut xx = label_width + SIZE_PACK_SPACING;
+                        
+                        for j in 0..k {
+                            if let Some(mut child) = wid_ref.child(j) {
                                 let ww = if j == 0 {
-                                    w - BUTTON_WIDTH - SIZE_PACK_SPACING
+                                    fw
                                 } else {
                                     BUTTON_WIDTH
                                 };
-
-                                wid_child_ref.resize(endx - ww, wid_child_ref.y(), ww, ROW_HEIGHT);
-                                endx -= SIZE_PACK_SPACING;
+                                child.resize(xx, y, ww, ROW_HEIGHT );
+                                xx = xx + ww + SIZE_PACK_SPACING;
                             }
-
-                            j -= 1;
                         }
                     }
-
+                    
                     y += SIZE_PACK_SPACING + ROW_HEIGHT;
                 }
 
@@ -337,8 +335,9 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         });
     }
 
-    wind.end();
     wind.resize(wind.x(), wind.y(), wind.w(), wind.h());
+    wind.end();
+    
     wind.show();
 
     match app.run() {
