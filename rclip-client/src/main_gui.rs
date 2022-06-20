@@ -1,12 +1,16 @@
 #![windows_subsystem = "windows"]
 
-use fltk::{app, button, dialog, group, input, prelude::*, window};
+use fltk::{app, button, dialog, draw, enums, frame, group, input, prelude::*, window};
 use rclip_config;
 use std::cell::RefCell;
 use std::error::Error;
 use std::rc::Rc;
 
 mod common;
+
+const SIZE_PACK_SPACING: i32 = 10;
+const ROW_HEIGHT: i32 = 40;
+const BUTTON_WIDTH: i32 = 80;
 
 fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let app = app::App::default().with_scheme(app::Scheme::Gleam);
@@ -21,18 +25,13 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         .with_size(430, 230)
         .center_screen()
         .with_label(&wind_title);
-    let wind_copy = wind.clone();
-    let wind_ref_receive = wind.clone();
-    let wind_ref_clear = wind.clone();
     wind.make_resizable(true);
-
-    let size_pack_spacing = 10;
 
     let mut group_host = group::Pack::default()
         .with_pos(100, 20)
         .with_size(400, 40)
         .with_type(group::PackType::Horizontal);
-    group_host.set_spacing(size_pack_spacing);
+    group_host.set_spacing(SIZE_PACK_SPACING);
     let input_host = Rc::new(RefCell::new(
         input::Input::default()
             .with_size(200, 20)
@@ -45,8 +44,8 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
             _ => rclip_config::ClientConfig::default(),
         };
 
-    let input_host_copy = input_host.clone();
     input_host.borrow_mut().set_tooltip("IP address to bind to");
+
     if let Some(server_host) = client_config.server.host {
         input_host.borrow_mut().set_value(&server_host);
     }
@@ -54,16 +53,15 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     group_host.end();
 
     let mut group_port = group::Pack::default()
-        .below_of(&group_host, size_pack_spacing)
         .with_size(400, 40)
+        .below_of(&group_host, SIZE_PACK_SPACING)
         .with_type(group::PackType::Horizontal);
-    group_port.set_spacing(size_pack_spacing);
+    group_port.set_spacing(SIZE_PACK_SPACING);
     let input_port = Rc::new(RefCell::new(
         input::Input::default()
             .with_size(200, 20)
             .with_label("Server port"),
     ));
-    let input_port_copy = input_port.clone();
 
     if let Some(server_port) = client_config.server.port {
         let port_number_text = format!("{}", server_port);
@@ -75,10 +73,10 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     group_port.end();
 
     let mut group_pub_cert = group::Pack::default()
-        .below_of(&group_port, size_pack_spacing)
         .with_size(400, 40)
+        .below_of(&group_port, SIZE_PACK_SPACING)
         .with_type(group::PackType::Horizontal);
-    group_pub_cert.set_spacing(size_pack_spacing);
+    group_pub_cert.set_spacing(SIZE_PACK_SPACING);
     let input_pub_cert = Rc::new(RefCell::new(
         input::Input::default()
             .with_size(200, 20)
@@ -91,16 +89,15 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         input_pub_cert.borrow_mut().set_value(&pub_key_loc);
     }
 
-    let input_pub_cert_copy = input_pub_cert.clone();
-    let input_pub_cert_copy2 = input_pub_cert.clone();
-    let input_pub_cert_copy3 = input_pub_cert.clone();
     input_pub_cert
         .borrow_mut()
         .set_tooltip("Public DER key path");
     let mut button_pub_cert = button::Button::default()
-        .with_size(80, 20)
+        .with_size(BUTTON_WIDTH, 20)
         .with_label("Browse...");
     button_pub_cert.set_callback({
+        let input_pub_cert_ref = input_pub_cert.clone();
+
         move |_| {
             let mut dlg = dialog::FileDialog::new(dialog::FileDialogType::BrowseFile);
             dlg.set_title("Select public key");
@@ -109,8 +106,8 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
             let selected_filename = dlg.filename();
 
             if !selected_filename.as_os_str().is_empty() {
-                let path_name = format!("{}", dlg.filename().display());
-                input_pub_cert.borrow_mut().set_value(&path_name);
+                let path_name = dlg.filename().display().to_string();
+                input_pub_cert_ref.borrow_mut().set_value(&path_name);
             }
         }
     });
@@ -118,18 +115,18 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
     let mut group_buttons = group::Pack::default()
         .with_size(400, 40)
-        .below_of(&group_pub_cert, size_pack_spacing)
+        .below_of(&group_pub_cert, SIZE_PACK_SPACING)
         .with_type(group::PackType::Horizontal);
-    group_buttons.set_spacing(size_pack_spacing);
+    group_buttons.set_spacing(SIZE_PACK_SPACING);
 
     let mut button_receive = button::Button::default()
-        .with_size(80, 20)
+        .with_size(BUTTON_WIDTH, 20)
         .with_label("Read");
     let mut button_send = button::Button::default()
-        .with_size(80, 20)
+        .with_size(BUTTON_WIDTH, 20)
         .with_label("Write");
     let mut button_clear = button::Button::default()
-        .with_size(80, 20)
+        .with_size(BUTTON_WIDTH, 20)
         .with_label("Clear");
 
     fn send_cmd(
@@ -153,29 +150,30 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     }
 
     button_send.set_callback({
-        let c_input_host = input_host.clone();
-        let c_input_port = input_port.clone();
+        let input_host_ref = input_host.clone();
+        let input_port_ref = input_port.clone();
+        let input_pub_cert_ref = input_pub_cert.clone();
+        let wind_ref = wind.clone();
 
         move |_| {
-            let port_text = c_input_port.borrow().value();
-            let host_text = c_input_host.borrow().value();
-            let cert_path = input_pub_cert_copy2.borrow().value();
+            let port_text = input_port_ref.borrow().value();
+            let host_text = input_host_ref.borrow().value();
+            let cert_path = input_pub_cert_ref.borrow().value();
 
             if let Ok(clipboard_contents) = common::get_clipboard_contents() {
                 let cmd_text_opt = Some(clipboard_contents);
-                let wind_copy = wind_copy.clone();
 
                 if let Err(ex) = send_cmd(host_text, port_text, cert_path, "WRITE", cmd_text_opt) {
                     dialog::alert(
-                        wind_copy.x(),
-                        wind_copy.y() + wind_copy.height() / 2,
+                        wind_ref.x(),
+                        wind_ref.y() + wind_ref.height() / 2,
                         ex.to_string().as_str(),
                     );
                 }
             } else {
                 dialog::alert(
-                    wind_copy.x(),
-                    wind_copy.y() + wind_copy.height() / 2,
+                    wind_ref.x(),
+                    wind_ref.y() + wind_ref.height() / 2,
                     "Could not acquire clipboard contents!",
                 );
             }
@@ -183,20 +181,21 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     });
 
     button_clear.set_callback({
-        let c_input_host = input_host.clone();
-        let c_input_port = input_port.clone();
+        let input_host_ref = input_host.clone();
+        let input_port_ref = input_port.clone();
+        let input_pub_cert_ref = input_pub_cert.clone();
+        let wind_ref = wind.clone();
 
         move |_| {
-            let port_text = c_input_port.borrow().value();
-            let host_text = c_input_host.borrow().value();
+            let port_text = input_port_ref.borrow().value();
+            let host_text = input_host_ref.borrow().value();
             let cmd_text_opt = Some(String::new());
-            let cert_path = input_pub_cert_copy3.borrow().value();
-            let wind_ref_clear = wind_ref_clear.clone();
+            let cert_path = input_pub_cert_ref.borrow().value();
 
             if let Err(ex) = send_cmd(host_text, port_text, cert_path, "CLEAR", cmd_text_opt) {
                 dialog::alert(
-                    wind_ref_clear.x(),
-                    wind_ref_clear.y() + wind_ref_clear.height() / 2,
+                    wind_ref.x(),
+                    wind_ref.y() + wind_ref.height() / 2,
                     ex.to_string().as_str(),
                 );
             }
@@ -204,25 +203,142 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     });
 
     button_receive.set_callback({
+        let input_pub_cert_ref = input_pub_cert.clone();
+        let input_port_ref = input_port.clone();
+        let wind_ref = wind.clone();
+        let input_host_ref = input_host.clone();
+
         move |_| {
-            let port_text = input_port_copy.borrow().value();
-            let host_text = input_host_copy.borrow().value();
-            let cert_path = input_pub_cert_copy.borrow().value();
-            let wind_ref_receive = wind_ref_receive.clone();
+            let port_text = input_port_ref.borrow().value();
+            let host_text = input_host_ref.borrow().value();
+            let cert_path = input_pub_cert_ref.borrow().value();
+            let wind_ref = wind_ref.clone();
 
             if let Err(ex) = send_cmd(host_text, port_text, cert_path, "READ", None) {
                 dialog::alert(
-                    wind_ref_receive.x(),
-                    wind_ref_receive.y() + wind_ref_receive.height() / 2,
+                    wind_ref.x(),
+                    wind_ref.y() + wind_ref.height() / 2,
                     ex.to_string().as_str(),
                 );
             }
         }
     });
 
+    wind.handle({
+        let mut wids = [
+            group_host.clone(),
+            group_port.clone(),
+            group_pub_cert.clone(),
+            group_buttons.clone(),
+        ];
+
+        let label_width = {
+            let mut lw = 0;
+
+            for wid in wids.iter() {
+                if let Some(wid_child_ref) = wid.child(0) {
+                    let (wid_label_width, _) = draw::measure(&wid_child_ref.label(), true);
+                    lw = std::cmp::max(lw, wid_label_width);
+                }
+            }
+
+            lw
+        };
+
+        move |wid, ev| match ev {
+            enums::Event::Resize => {
+                let w = wid.w() - label_width - (SIZE_PACK_SPACING * 2);
+                let mut y = SIZE_PACK_SPACING;
+                let n = wids.len();
+
+                for i in 0..n {
+                    let wid_ref = &mut wids[i];
+                    wid_ref.resize(label_width + SIZE_PACK_SPACING, y, w, ROW_HEIGHT);
+
+                    if i != n - 1 {
+                        let mut j = wid_ref.children() - 1;
+                        let mut endx = w;
+
+                        while j >= 0 {
+                            if let Some(mut wid_child_ref) = wid_ref.child(j) {
+                                let ww = if j == 0 {
+                                    w - BUTTON_WIDTH - SIZE_PACK_SPACING
+                                } else {
+                                    BUTTON_WIDTH
+                                };
+
+                                wid_child_ref.resize(endx - ww, wid_child_ref.y(), ww, ROW_HEIGHT);
+                                endx -= SIZE_PACK_SPACING;
+                            }
+
+                            j -= 1;
+                        }
+                    }
+
+                    y += SIZE_PACK_SPACING + ROW_HEIGHT;
+                }
+
+                true
+            }
+            _ => {
+                if app::event_state().is_empty() && app::event_key() == enums::Key::Escape {
+                    true
+                } else {
+                    false
+                }
+            }
+        }
+    });
+
     group_buttons.end();
 
+    #[cfg(target_os = "macos")]
+    {
+        use fltk::menu;
+
+        menu::mac_set_about({
+            let wind_ref = wind.clone();
+
+            move || {
+                let dialog_width = 250;
+                let dialog_height = 80;
+                let dialog_xpos = wind_ref.x() + (wind_ref.w() / 2) - (dialog_width / 2);
+                let dialog_ypos = wind_ref.y() + (wind_ref.h() / 2) - (dialog_height / 2);
+                let win_title = format!(
+                    "{} {}",
+                    "About",
+                    option_env!("CARGO_PKG_NAME").unwrap_or("Unknown")
+                );
+
+                let mut win = window::Window::default()
+                    .with_size(dialog_width, dialog_height)
+                    .with_pos(dialog_xpos, dialog_ypos)
+                    .with_label(&win_title);
+
+                let dialog_text = format!(
+                    "{}\n{} {}",
+                    option_env!("CARGO_PKG_DESCRIPTION").unwrap_or("Unknown"),
+                    "Version",
+                    option_env!("CARGO_PKG_VERSION").unwrap_or("Unknown")
+                );
+
+                frame::Frame::default_fill()
+                    .with_label(&dialog_text)
+                    .with_align(enums::Align::Center | enums::Align::Inside);
+
+                win.end();
+                win.make_modal(true);
+                win.show();
+
+                while win.shown() {
+                    app::wait();
+                }
+            }
+        });
+    }
+
     wind.end();
+    wind.resize(wind.x(), wind.y(), wind.w(), wind.h());
     wind.show();
 
     match app.run() {
