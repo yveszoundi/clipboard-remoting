@@ -25,6 +25,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         .with_size(430, 230)
         .center_screen()
         .with_label(&wind_title);
+    wind.set_xclass("rclip");
     wind.make_resizable(true);
 
     let mut group_host = group::Pack::default()
@@ -232,29 +233,32 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
             group_buttons.clone(),
         ];
 
-        let label_width = {
-            let mut lw = 0;
-
-            for wid in wids.iter() {
-                if let Some(wid_child_ref) = wid.child(0) {
-                    let (wid_label_width, _) = draw::measure(&wid_child_ref.label(), true);
-                    lw = std::cmp::max(lw, wid_label_width);
-                }
-            }
-
-            lw
-        };
-
         move |wid, ev| match ev {
             enums::Event::Resize => {
+
+                let label_width = {
+                    let mut lw = 0;
+
+                    for wid in wids.iter() {
+                        if let Some(wid_child_ref) = wid.child(0) {
+                            let (wid_label_width, _) = draw::measure(&wid_child_ref.label(), true);
+                            lw = std::cmp::max(lw, wid_label_width);
+                        }
+                    }
+
+                    lw
+                };
+
                 let w = wid.w() - label_width - (SIZE_PACK_SPACING * 2);
                 let mut y = SIZE_PACK_SPACING;
                 let n = wids.len();
                 let fw = w - BUTTON_WIDTH - SIZE_PACK_SPACING;
 
+                //dialog::alert(1, 1, &format!("{}", label_width));
+
                 for i in 0..n {
                     let wid_ref = &mut wids[i];
-                    wid_ref.resize(label_width + SIZE_PACK_SPACING, y, w, ROW_HEIGHT);                    
+                    wid_ref.resize(SIZE_PACK_SPACING + label_width, y, w, ROW_HEIGHT);
                     y += SIZE_PACK_SPACING + ROW_HEIGHT;
                 }
 
@@ -264,7 +268,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
                     if i != n - 1 {
                         let k = wid_ref.children();
                         let mut child_x = label_width + SIZE_PACK_SPACING;
-                        
+
                         for j in 0..k {
                             if let Some(mut child) = wid_ref.child(j) {
                                 let child_w = if j == 0 {
@@ -339,13 +343,19 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         });
     }
 
-
     wind.end();
     wind.show();
-    wind.resize(wind.x(), wind.y(), wind.w(), wind.h());    
 
-    match app.run() {
-        Ok(_) => Ok(()),
-        Err(ex) => Err(ex.into()),
-    }
+    let cb = {
+        let mut wind_ref = wind.clone();
+
+        move |_| {
+            wind_ref.resize(wind_ref.x(), wind_ref.y(), 400, 230);
+        }
+    };
+    app::add_timeout3(0.01, cb);
+
+    app.run()?;
+
+    Ok(())
 }
