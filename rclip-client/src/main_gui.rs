@@ -254,26 +254,30 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
                 for i in 0..n {
                     let wid_ref = &mut wids[i];
-                    wid_ref.resize(label_width + SIZE_PACK_SPACING, y, w, ROW_HEIGHT);
+                    wid_ref.resize(label_width + SIZE_PACK_SPACING, y, w, ROW_HEIGHT);                    
+                    y += SIZE_PACK_SPACING + ROW_HEIGHT;
+                }
+
+                for i in 0..n {
+                    let wid_ref = &mut wids[i];
 
                     if i != n - 1 {
                         let k = wid_ref.children();
-                        let mut xx = label_width + SIZE_PACK_SPACING;
+                        let mut child_x = label_width + SIZE_PACK_SPACING;
                         
                         for j in 0..k {
                             if let Some(mut child) = wid_ref.child(j) {
-                                let ww = if j == 0 {
+                                let child_w = if j == 0 {
                                     fw
                                 } else {
                                     BUTTON_WIDTH
                                 };
-                                child.resize(xx, y, ww, ROW_HEIGHT );
-                                xx = xx + ww + SIZE_PACK_SPACING;
+
+                                child.resize(wid_ref.x(), wid_ref.y(), child_w, ROW_HEIGHT);
+                                child_x = child_x + child_w + SIZE_PACK_SPACING;
                             }
                         }
                     }
-                    
-                    y += SIZE_PACK_SPACING + ROW_HEIGHT;
                 }
 
                 true
