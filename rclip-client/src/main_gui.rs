@@ -339,10 +339,10 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         });
     }
 
-    wind.resize(wind.x(), wind.y(), wind.w(), wind.h());
+
     wind.end();
-    
     wind.show();
+    wind.resize(wind.x(), wind.y(), wind.w(), wind.h());    
 
     match app.run() {
         Ok(_) => Ok(()),
