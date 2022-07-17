@@ -234,6 +234,10 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         ];
 
         move |wid, ev| match ev {
+            enums::Event::Move => {
+                wid.redraw();
+                true
+            },
             enums::Event::Resize => {
 
                 let label_width = {
