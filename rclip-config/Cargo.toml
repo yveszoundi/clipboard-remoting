@@ -1,6 +1,6 @@
 [package]
 name = "rclip-config"
-version = "1.0.1"
+version = "1.0.2"
 edition = "2018"
 description = "rclip clipboard configuration" 
 keywords = ["clipboard", "remoting"]
