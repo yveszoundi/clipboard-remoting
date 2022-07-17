@@ -9,8 +9,8 @@ use std::rc::Rc;
 mod common;
 
 const SIZE_PACK_SPACING: i32 = 10;
-const ROW_HEIGHT: i32 = 40;
-const BUTTON_WIDTH: i32 = 80;
+const ROW_HEIGHT: i32        = 40;
+const BUTTON_WIDTH: i32      = 80;
 
 fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let app = app::App::default().with_scheme(app::Scheme::Gleam);
@@ -30,7 +30,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
     let mut group_host = group::Pack::default()
         .with_pos(100, 20)
-        .with_size(400, 40)
+        .with_size(400, ROW_HEIGHT)
         .with_type(group::PackType::Horizontal);
     group_host.set_spacing(SIZE_PACK_SPACING);
     let input_host = Rc::new(RefCell::new(
@@ -54,7 +54,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     group_host.end();
 
     let mut group_port = group::Pack::default()
-        .with_size(400, 40)
+        .with_size(400, ROW_HEIGHT)
         .below_of(&group_host, SIZE_PACK_SPACING)
         .with_type(group::PackType::Horizontal);
     group_port.set_spacing(SIZE_PACK_SPACING);
@@ -74,7 +74,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     group_port.end();
 
     let mut group_pub_cert = group::Pack::default()
-        .with_size(400, 40)
+        .with_size(400, ROW_HEIGHT)
         .below_of(&group_port, SIZE_PACK_SPACING)
         .with_type(group::PackType::Horizontal);
     group_pub_cert.set_spacing(SIZE_PACK_SPACING);
@@ -115,7 +115,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     group_pub_cert.end();
 
     let mut group_buttons = group::Pack::default()
-        .with_size(400, 40)
+        .with_size(400, ROW_HEIGHT)
         .below_of(&group_pub_cert, SIZE_PACK_SPACING)
         .with_type(group::PackType::Horizontal);
     group_buttons.set_spacing(SIZE_PACK_SPACING);
@@ -253,8 +253,6 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
                 let mut y = SIZE_PACK_SPACING;
                 let n = wids.len();
                 let fw = w - BUTTON_WIDTH - SIZE_PACK_SPACING;
-
-                //dialog::alert(1, 1, &format!("{}", label_width));
 
                 for i in 0..n {
                     let wid_ref = &mut wids[i];
