@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Rclip Desktop Client CLI
+Comment=Share text between networks
+Icon=rclip-client-cli
+Terminal=true
+Type=Application
+Categories=Network;
+Keywords=Network;Clipboard;
+Exec=sh -c "rclip-client-cli"
+TryExec=rclip-client-cli

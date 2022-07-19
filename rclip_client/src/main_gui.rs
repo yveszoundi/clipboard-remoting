@@ -1,6 +1,8 @@
 #![windows_subsystem = "windows"]
 
-use fltk::{app, button, dialog, draw, enums, frame, group, input, prelude::*, window};
+use fltk::{
+    app, button, dialog, draw, enums, group, input, prelude::*, window
+};
 use rclip_config;
 use std::cell::RefCell;
 use std::error::Error;
@@ -11,6 +13,8 @@ mod common;
 const SIZE_PACK_SPACING: i32 = 10;
 const ROW_HEIGHT: i32        = 40;
 const BUTTON_WIDTH: i32      = 80;
+const WINDOW_WIDTH: i32      = 430;
+const WINDOW_HEIGHT: i32     = 230;
 
 fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let app = app::App::default().with_scheme(app::Scheme::Gleam);
@@ -22,7 +26,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     );
 
     let mut wind = window::Window::default()
-        .with_size(430, 230)
+        .with_size(WINDOW_WIDTH, WINDOW_HEIGHT)
         .center_screen()
         .with_label(&wind_title);
     wind.set_xclass("rclip");
@@ -302,7 +306,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
     #[cfg(target_os = "macos")]
     {
-        use fltk::menu;
+        use fltk:: {menu, frame};
 
         menu::mac_set_about({
             let wind_ref = wind.clone();
@@ -348,14 +352,13 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     wind.end();
     wind.show();
 
-    let cb = {
+    app::add_timeout3(0.01, {
         let mut wind_ref = wind.clone();
 
         move |_| {
-            wind_ref.resize(wind_ref.x(), wind_ref.y(), 400, 230);
+            wind_ref.resize(wind_ref.x(), wind_ref.y(), WINDOW_WIDTH, WINDOW_HEIGHT);
         }
-    };
-    app::add_timeout3(0.01, cb);
+    });
 
     app.run()?;
 

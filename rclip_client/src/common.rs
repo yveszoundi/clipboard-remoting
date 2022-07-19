@@ -5,6 +5,7 @@ use std::error::Error;
 use std::fs;
 use std::io::{self, Read, Write};
 use std::net;
+use std::path::Path;
 use std::sync::Arc;
 use std::time::SystemTime;
 
@@ -78,6 +79,7 @@ pub fn set_clipboard_contents(clipboard_text: String) -> Result<(), Box<dyn Erro
 
     let mut ctx = ClipboardContext::new()?;
     ctx.set_contents(clipboard_text)?;
+
     Ok(())
 }
 
@@ -97,6 +99,10 @@ pub fn send_cmd(
     key_pub_loc: String,
     clipboard_cmd: ClipboardCmd,
 ) -> Result<(), Box<dyn Error + Send + Sync>> {
+    if !Path::new(&key_pub_loc).exists() {
+        return Err(format!("Cannot find public key at: {}", key_pub_loc).into());
+    }
+
     let input = format!("{}", clipboard_cmd);
     let key_pub_bytes = fs::read(key_pub_loc)?;
 

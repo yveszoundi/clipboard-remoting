@@ -1,16 +1,23 @@
 [package]
-name = "rclip-config"
+name = "rclip_server"
 version = "1.0.2"
 edition = "2018"
-description = "rclip clipboard configuration" 
+description = "rclip clipboard server"
 keywords = ["clipboard", "remoting"]
+license = "GPL"
 repository = "https://github.com/yveszoundi/rclip"
 authors = [
 	"Yves Zoundi <yves_zoundi@hotmail.com>"
 ]
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dirs = "4.0.0"
-serde = { version = "1.0.136", features = ["derive"] }
-toml = "0.5.9"
+tokio = { version = "1.16.1", features = ["full"] }
+clap = "2.33.3"
+tokio-rustls = "0.23.3"
+rclip_config = { path = "../rclip_config" }
+
+[[bin]]
+name = "rclip-server"
+path = "src/main.rs"

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Rclip Desktop Client GUI
+Comment=Share text between networks
+Icon=rclip-client-gui
+Terminal=false
+Type=Application
+Categories=Network;
+Keywords=Network;Clipboard;
+Exec=sh -c "rclip-client-gui"
+TryExec=rclip-client-gui
