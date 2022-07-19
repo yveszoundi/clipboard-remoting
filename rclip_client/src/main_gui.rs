@@ -1,7 +1,7 @@
 #![windows_subsystem = "windows"]
 
 use fltk::{
-    app, button, dialog, draw, enums, group, input, prelude::*, window
+    app, button, dialog, draw, enums, group, input, prelude::*, window, frame
 };
 use rclip_config;
 use std::cell::RefCell;
@@ -15,6 +15,7 @@ const ROW_HEIGHT: i32        = 40;
 const BUTTON_WIDTH: i32      = 80;
 const WINDOW_WIDTH: i32      = 430;
 const WINDOW_HEIGHT: i32     = 230;
+const LABEL_WIDTH: i32       = 150;
 
 fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let app = app::App::default().with_scheme(app::Scheme::Gleam);
@@ -33,14 +34,19 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     wind.make_resizable(true);
 
     let mut group_host = group::Pack::default()
-        .with_pos(100, 20)
+        .with_pos(SIZE_PACK_SPACING, SIZE_PACK_SPACING)
         .with_size(400, ROW_HEIGHT)
         .with_type(group::PackType::Horizontal);
     group_host.set_spacing(SIZE_PACK_SPACING);
+
+    frame::Frame::default()
+        .with_size(LABEL_WIDTH, ROW_HEIGHT)
+        .with_label("Server host")
+        .with_align(enums::Align::Inside | enums::Align::Right);
+    
     let input_host = Rc::new(RefCell::new(
         input::Input::default()
             .with_size(200, 20)
-            .with_label("Server host"),
     ));
 
     let client_config =
@@ -62,10 +68,13 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         .below_of(&group_host, SIZE_PACK_SPACING)
         .with_type(group::PackType::Horizontal);
     group_port.set_spacing(SIZE_PACK_SPACING);
+    frame::Frame::default()
+        .with_size(LABEL_WIDTH, ROW_HEIGHT)
+        .with_label("Server port")
+        .with_align(enums::Align::Inside | enums::Align::Right);
     let input_port = Rc::new(RefCell::new(
         input::Input::default()
             .with_size(200, 20)
-            .with_label("Server port"),
     ));
 
     if let Some(server_port) = client_config.server.port {
@@ -82,10 +91,13 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         .below_of(&group_port, SIZE_PACK_SPACING)
         .with_type(group::PackType::Horizontal);
     group_pub_cert.set_spacing(SIZE_PACK_SPACING);
+    frame::Frame::default()
+        .with_size(LABEL_WIDTH, ROW_HEIGHT)
+        .with_label("Public key")
+        .with_align(enums::Align::Inside | enums::Align::Right);
     let input_pub_cert = Rc::new(RefCell::new(
         input::Input::default()
             .with_size(200, 20)
-            .with_label("Public key"),
     ));
 
     if let Some(pub_key_loc) =
@@ -257,14 +269,13 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
                     lw
                 };
 
-                let w = wid.w() - label_width - (SIZE_PACK_SPACING * 2);
+                let w = wid.w() - (SIZE_PACK_SPACING * 2);
                 let mut y = SIZE_PACK_SPACING;
                 let n = wids.len();
-                let fw = w - BUTTON_WIDTH - SIZE_PACK_SPACING;
 
                 for i in 0..n {
                     let wid_ref = &mut wids[i];
-                    wid_ref.resize(SIZE_PACK_SPACING + label_width, y, w, ROW_HEIGHT);
+                    wid_ref.resize(SIZE_PACK_SPACING, y, w, ROW_HEIGHT);
                     y += SIZE_PACK_SPACING + ROW_HEIGHT;
                 }
 
@@ -273,18 +284,20 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
                     if i != n - 1 {
                         let k = wid_ref.children();
-                        let mut child_x = label_width + SIZE_PACK_SPACING;
+                        let mut child_x = SIZE_PACK_SPACING;
+                        let mut ws = vec![label_width];
+
+                        if k < 3 {
+                            ws.push(w - (ws[0] + SIZE_PACK_SPACING));
+                        } else {
+                            ws.push(w - ws[0] - (BUTTON_WIDTH ) - (SIZE_PACK_SPACING * 2));
+                            ws.push(BUTTON_WIDTH);
+                        }
 
                         for j in 0..k {
                             if let Some(mut child) = wid_ref.child(j) {
-                                let child_w = if j == 0 {
-                                    fw
-                                } else {
-                                    BUTTON_WIDTH
-                                };
-
-                                child.resize(wid_ref.x(), wid_ref.y(), child_w, ROW_HEIGHT);
-                                child_x = child_x + child_w + SIZE_PACK_SPACING;
+                                child.resize(child_x, wid_ref.y(), ws[j as usize], ROW_HEIGHT);
+                                child_x = child_x + ws[j as usize] + SIZE_PACK_SPACING;
                             }
                         }
                     }
@@ -306,7 +319,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
     #[cfg(target_os = "macos")]
     {
-        use fltk:: {menu, frame};
+        use fltk:: menu;
 
         menu::mac_set_about({
             let wind_ref = wind.clone();
