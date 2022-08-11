@@ -1,7 +1,7 @@
 #![windows_subsystem = "windows"]
 
 use fltk::{
-    app, button, dialog, draw, enums, group, input, prelude::*, window, frame
+    app, button, dialog, enums, group, input, prelude::*, window, frame, draw
 };
 use rclip_config;
 use std::cell::RefCell;
@@ -33,18 +33,18 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     wind.set_xclass("rclip");
     wind.make_resizable(true);
 
-    let mut group_host = group::Pack::default()
+    let mut host_pack = group::Pack::default()
         .with_pos(SIZE_PACK_SPACING, SIZE_PACK_SPACING)
         .with_size(400, ROW_HEIGHT)
         .with_type(group::PackType::Horizontal);
-    group_host.set_spacing(SIZE_PACK_SPACING);
+    host_pack.set_spacing(SIZE_PACK_SPACING);
 
-    frame::Frame::default()
+    let host_frame = frame::Frame::default()
         .with_size(LABEL_WIDTH, ROW_HEIGHT)
         .with_label("Server host")
         .with_align(enums::Align::Inside | enums::Align::Right);
-    
-    let input_host = Rc::new(RefCell::new(
+
+    let host_input_rc = Rc::new(RefCell::new(
         input::Input::default()
             .with_size(200, 20)
     ));
@@ -55,24 +55,25 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
             _ => rclip_config::ClientConfig::default(),
         };
 
-    input_host.borrow_mut().set_tooltip("IP address to bind to");
+    host_input_rc.borrow_mut().set_tooltip("IP address to bind to");
 
     if let Some(server_host) = client_config.server.host {
-        input_host.borrow_mut().set_value(&server_host);
+        host_input_rc.borrow_mut().set_value(&server_host);
     }
 
-    group_host.end();
+    host_pack.end();
 
-    let mut group_port = group::Pack::default()
+    let mut port_pack = group::Pack::default()
         .with_size(400, ROW_HEIGHT)
-        .below_of(&group_host, SIZE_PACK_SPACING)
+        .below_of(&host_pack, SIZE_PACK_SPACING)
         .with_type(group::PackType::Horizontal);
-    group_port.set_spacing(SIZE_PACK_SPACING);
-    frame::Frame::default()
+
+    port_pack.set_spacing(SIZE_PACK_SPACING);
+    let port_frame = frame::Frame::default()
         .with_size(LABEL_WIDTH, ROW_HEIGHT)
         .with_label("Server port")
         .with_align(enums::Align::Inside | enums::Align::Right);
-    let input_port = Rc::new(RefCell::new(
+    let port_input_rc = Rc::new(RefCell::new(
         input::Input::default()
             .with_size(200, 20)
     ));
@@ -80,22 +81,22 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     if let Some(server_port) = client_config.server.port {
         let port_number_text = format!("{}", server_port);
 
-        input_port.borrow_mut().set_value(&port_number_text);
+        port_input_rc.borrow_mut().set_value(&port_number_text);
     }
 
-    input_port.borrow_mut().set_tooltip("Server port number");
-    group_port.end();
+    port_input_rc.borrow_mut().set_tooltip("Server port number");
+    port_pack.end();
 
-    let mut group_pub_cert = group::Pack::default()
+    let mut key_pack = group::Pack::default()
         .with_size(400, ROW_HEIGHT)
-        .below_of(&group_port, SIZE_PACK_SPACING)
+        .below_of(&port_pack, SIZE_PACK_SPACING)
         .with_type(group::PackType::Horizontal);
-    group_pub_cert.set_spacing(SIZE_PACK_SPACING);
-    frame::Frame::default()
+    key_pack.set_spacing(SIZE_PACK_SPACING);
+    let key_frame = frame::Frame::default()
         .with_size(LABEL_WIDTH, ROW_HEIGHT)
         .with_label("Public key")
         .with_align(enums::Align::Inside | enums::Align::Right);
-    let input_pub_cert = Rc::new(RefCell::new(
+    let key_input_rc = Rc::new(RefCell::new(
         input::Input::default()
             .with_size(200, 20)
     ));
@@ -103,17 +104,17 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     if let Some(pub_key_loc) =
         rclip_config::resolve_default_cert_path(rclip_config::DEFAULT_FILENAME_DER_CERT_PUB)
     {
-        input_pub_cert.borrow_mut().set_value(&pub_key_loc);
+        key_input_rc.borrow_mut().set_value(&pub_key_loc);
     }
 
-    input_pub_cert
+    key_input_rc
         .borrow_mut()
         .set_tooltip("Public DER key path");
-    let mut button_pub_cert = button::Button::default()
+    let mut key_button = button::Button::default()
         .with_size(BUTTON_WIDTH, 20)
         .with_label("Browse...");
-    button_pub_cert.set_callback({
-        let input_pub_cert_ref = input_pub_cert.clone();
+    key_button.set_callback({
+        let input_pub_cert_ref = key_input_rc.clone();
 
         move |_| {
             let mut dlg = dialog::FileDialog::new(dialog::FileDialogType::BrowseFile);
@@ -128,13 +129,13 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
             }
         }
     });
-    group_pub_cert.end();
+    key_pack.end();
 
-    let mut group_buttons = group::Pack::default()
+    let mut buttons_pack = group::Pack::default()
         .with_size(400, ROW_HEIGHT)
-        .below_of(&group_pub_cert, SIZE_PACK_SPACING)
+        .below_of(&key_pack, SIZE_PACK_SPACING)
         .with_type(group::PackType::Horizontal);
-    group_buttons.set_spacing(SIZE_PACK_SPACING);
+    buttons_pack.set_spacing(SIZE_PACK_SPACING);
 
     let mut button_receive = button::Button::default()
         .with_size(BUTTON_WIDTH, 20)
@@ -167,9 +168,9 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     }
 
     button_send.set_callback({
-        let input_host_ref = input_host.clone();
-        let input_port_ref = input_port.clone();
-        let input_pub_cert_ref = input_pub_cert.clone();
+        let input_host_ref = host_input_rc.clone();
+        let input_port_ref = port_input_rc.clone();
+        let input_pub_cert_ref = key_input_rc.clone();
         let wind_ref = wind.clone();
 
         move |_| {
@@ -198,9 +199,9 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     });
 
     button_clear.set_callback({
-        let input_host_ref = input_host.clone();
-        let input_port_ref = input_port.clone();
-        let input_pub_cert_ref = input_pub_cert.clone();
+        let input_host_ref = host_input_rc.clone();
+        let input_port_ref = port_input_rc.clone();
+        let input_pub_cert_ref = key_input_rc.clone();
         let wind_ref = wind.clone();
 
         move |_| {
@@ -220,10 +221,10 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     });
 
     button_receive.set_callback({
-        let input_pub_cert_ref = input_pub_cert.clone();
-        let input_port_ref = input_port.clone();
+        let input_pub_cert_ref = key_input_rc.clone();
+        let input_port_ref = port_input_rc.clone();
         let wind_ref = wind.clone();
-        let input_host_ref = input_host.clone();
+        let input_host_ref = host_input_rc.clone();
 
         move |_| {
             let port_text = input_port_ref.borrow().value();
@@ -242,12 +243,30 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     });
 
     wind.handle({
-        let mut wids = [
-            group_host.clone(),
-            group_port.clone(),
-            group_pub_cert.clone(),
-            group_buttons.clone(),
-        ];
+        let mut host_pack = host_pack.clone();
+        let mut host_frame = host_frame.clone();
+        let host_input_rc = host_input_rc.clone();
+
+        let mut port_pack = port_pack.clone();
+        let mut port_frame = port_frame.clone();
+        let port_input_rc = port_input_rc.clone();
+
+        let mut key_pack = key_pack.clone();
+        let mut key_frame = key_frame.clone();
+        let key_input_rc = key_input_rc.clone();
+        let mut key_button = key_button.clone();
+
+        let mut buttons_pack = buttons_pack.clone();
+
+        let lw = {
+            let mut lw = 100;
+
+            lw = std::cmp::max(lw, draw::measure(&host_frame.label(), true).0);
+            lw = std::cmp::max(lw, draw::measure(&port_frame.label(), true).0);
+            lw = std::cmp::max(lw, draw::measure(&key_frame.label(), true).0);
+
+            lw
+        };
 
         move |wid, ev| match ev {
             enums::Event::Move => {
@@ -255,53 +274,32 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
                 true
             },
             enums::Event::Resize => {
+                let widw = wid.w() - (SIZE_PACK_SPACING * 2);
 
-                let label_width = {
-                    let mut lw = 0;
+                let mut widy = SIZE_PACK_SPACING;
+                host_pack.resize(SIZE_PACK_SPACING, widy, widw, ROW_HEIGHT);
 
-                    for wid in wids.iter() {
-                        if let Some(wid_child_ref) = wid.child(0) {
-                            let (wid_label_width, _) = draw::measure(&wid_child_ref.label(), true);
-                            lw = std::cmp::max(lw, wid_label_width);
-                        }
-                    }
+                widy += SIZE_PACK_SPACING + ROW_HEIGHT;
+                port_pack.resize(SIZE_PACK_SPACING, widy, widw, ROW_HEIGHT);
 
-                    lw
-                };
+                widy += SIZE_PACK_SPACING + ROW_HEIGHT;
+                key_pack.resize(SIZE_PACK_SPACING, widy, widw, ROW_HEIGHT);
 
-                let w = wid.w() - (SIZE_PACK_SPACING * 2);
-                let mut y = SIZE_PACK_SPACING;
-                let n = wids.len();
+                widy += SIZE_PACK_SPACING + ROW_HEIGHT;
+                buttons_pack.resize(SIZE_PACK_SPACING, widy, widw, ROW_HEIGHT);
 
-                for i in 0..n {
-                    let wid_ref = &mut wids[i];
-                    wid_ref.resize(SIZE_PACK_SPACING, y, w, ROW_HEIGHT);
-                    y += SIZE_PACK_SPACING + ROW_HEIGHT;
-                }
+                widy = SIZE_PACK_SPACING;
+                host_frame.resize(SIZE_PACK_SPACING, widy, lw, ROW_HEIGHT);
+                host_input_rc.borrow_mut().resize(SIZE_PACK_SPACING * 2 + lw, widy, widw - lw - SIZE_PACK_SPACING, ROW_HEIGHT);
 
-                for i in 0..n {
-                    let wid_ref = &mut wids[i];
+                widy += SIZE_PACK_SPACING + ROW_HEIGHT;
+                port_frame.resize(SIZE_PACK_SPACING, widy, lw, ROW_HEIGHT);
+                port_input_rc.borrow_mut().resize(SIZE_PACK_SPACING * 2 + lw, widy, widw - lw - SIZE_PACK_SPACING, ROW_HEIGHT);
 
-                    if i != n - 1 {
-                        let k = wid_ref.children();
-                        let mut child_x = SIZE_PACK_SPACING;
-                        let mut ws = vec![label_width];
-
-                        if k < 3 {
-                            ws.push(w - (ws[0] + SIZE_PACK_SPACING));
-                        } else {
-                            ws.push(w - ws[0] - (BUTTON_WIDTH ) - (SIZE_PACK_SPACING * 2));
-                            ws.push(BUTTON_WIDTH);
-                        }
-
-                        for j in 0..k {
-                            if let Some(mut child) = wid_ref.child(j) {
-                                child.resize(child_x, wid_ref.y(), ws[j as usize], ROW_HEIGHT);
-                                child_x = child_x + ws[j as usize] + SIZE_PACK_SPACING;
-                            }
-                        }
-                    }
-                }
+                widy += SIZE_PACK_SPACING + ROW_HEIGHT;
+                key_frame.resize(SIZE_PACK_SPACING, widy, lw, ROW_HEIGHT);
+                key_input_rc.borrow_mut().resize(SIZE_PACK_SPACING * 2 + lw, widy, widw - lw - SIZE_PACK_SPACING * 2 - BUTTON_WIDTH, ROW_HEIGHT);
+                key_button.resize(widw - BUTTON_WIDTH - SIZE_PACK_SPACING, widy, BUTTON_WIDTH, ROW_HEIGHT);
 
                 true
             }
@@ -315,7 +313,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         }
     });
 
-    group_buttons.end();
+    buttons_pack.end();
 
     #[cfg(target_os = "macos")]
     {
@@ -364,14 +362,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
     wind.end();
     wind.show();
-
-    app::add_timeout3(0.01, {
-        let mut wind_ref = wind.clone();
-
-        move |_| {
-            wind_ref.resize(wind_ref.x(), wind_ref.y(), WINDOW_WIDTH, WINDOW_HEIGHT);
-        }
-    });
+    wind.resize(wind.x(), wind.y(), WINDOW_WIDTH + 1, WINDOW_HEIGHT);
 
     app.run()?;
 
