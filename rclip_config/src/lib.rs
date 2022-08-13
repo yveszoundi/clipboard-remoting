@@ -91,9 +91,7 @@ impl Default for ClientConfig {
 }
 
 pub fn resolve_default_cert_path(filename: &str) -> Option<String> {
-    let opt_data_dir = dirs::data_dir();
-
-    if let Some(data_dir) = opt_data_dir {
+    if let Some(data_dir) = dirs::data_dir() {
         let data_dir_rclip_tcp = data_dir.join(PROGRAM_GROUP);
 
         if data_dir_rclip_tcp.exists() {
@@ -110,11 +108,8 @@ pub fn resolve_default_cert_path(filename: &str) -> Option<String> {
     None
 }
 
-pub fn load_default_config <T> (filename: &str) -> Result<T, Box<dyn Error>>
-where T: Default + DeserializeOwned {
-    let opt_config_dir = dirs::config_dir();
-
-    if let Some(config_dir) = opt_config_dir {
+pub fn load_default_config <T> (filename: &str) -> Result<T, Box<dyn Error>> where T: Default + DeserializeOwned {
+    if let Some(config_dir) = dirs::config_dir() {
         let config_dir_rclip_tcp = config_dir.join(PROGRAM_GROUP);
 
         if config_dir_rclip_tcp.exists() {
