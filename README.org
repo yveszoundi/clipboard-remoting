@@ -13,7 +13,7 @@ The primary use-case is clipboard-sharing (text only) within a local network (ho
 * What does it look like?
 
 In the screenshot below, text is copied from a Mac OS computer to an Ubuntu Linux virtual machine.
-- The =rclip= graphical desktop client is used on Mac OS ("Write" button, after copying text in the browser)
+- The =rclip= graphical desktop client is used on Mac OS ("Write" button click, after copying text from the browser)
 - Under Linux, the =rclip= command-line client is invoked (keyboard shortcuts, personal preferences)
 
 [[./images/rclip.gif]]
