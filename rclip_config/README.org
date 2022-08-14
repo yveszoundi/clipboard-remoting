@@ -6,6 +6,8 @@ Configuration related code shared between the client and the server components (
 
 * Configuration data structures
 
+The blocks to follow are logical representations of the configuration. The configuration files themselves using TOML as format, not JSON or JavaScript.
+
 ** Server configuration
 
 #+begin_src text
