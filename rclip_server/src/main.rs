@@ -225,16 +225,15 @@ async fn serve(
 
 fn handle_message(data: String, clipboard: Arc<Mutex<String>>) -> String {
     match clipboard.lock() {
-        Ok(mut old_clipboard) => {
+        Ok(mut clipboard_ref) => {
             if data.starts_with(CMD_READ) {
-                return format!("SUCCESS:{}", old_clipboard.as_str());
+                return format!("SUCCESS:{}", clipboard_ref.as_str());
             } else if data.starts_with(CMD_WRITE) {
                 let new_clipboard = &data[CMD_WRITE.len()..];
-                old_clipboard.clear();
-                old_clipboard.push_str(new_clipboard);
+                *clipboard_ref = new_clipboard.to_string();
                 return format!("SUCCESS:{}", new_clipboard);
             } else if data.starts_with(CMD_CLEAR) {
-                old_clipboard.clear();
+                clipboard_ref.clear();
                 return format!("SUCCESS:{}", EMPTY_CLIPBOARD_TEXT);
             } else {
                 return format!("ERROR:Unknown message {}", data);
