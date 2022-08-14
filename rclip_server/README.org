@@ -40,7 +40,7 @@ It can become inconvenient to continously provide known command-line parameters.
 
 *** Optional sample configuration file
 
-*The server configuration file name is "/config-server.toml/"*.
+The server configuration file name is *config-server.toml*.
 
 #+begin_src conf-toml
   title = "rclip server configuration"

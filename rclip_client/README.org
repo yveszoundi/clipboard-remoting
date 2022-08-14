@@ -91,7 +91,7 @@ It can become inconvenient to continously provide known command-line or GUI para
 
 *** Optional sample configuration file
 
-*The server configuration file name is "/config-client.toml/"*.
+The server configuration file name is *config-client.toml*.
 
 #+begin_src conf-toml
   title = "rclip client configuration"
