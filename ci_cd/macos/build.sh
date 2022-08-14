@@ -29,7 +29,7 @@ fi
 
 cp ${PROJECTDIR}/rclip_client/target/x86_64-apple-darwin/release/rclip-client-cli ${ARTIFACTSDIR}
 cp ${PROJECTDIR}/rclip_client/target/x86_64-apple-darwin/release/rclip-client-gui ${ARTIFACTSDIR}
-cp ${PROJECTDIR}/rclip_webserver/target/x86_64-apple-darwin/release/rclip-server  ${ARTIFACTSDIR}
+cp ${PROJECTDIR}/rclip_server/target/x86_64-apple-darwin/release/rclip-server  ${ARTIFACTSDIR}
 
 # See https://github.com/zhlynn/zsign
 # # See https://forums.ivanti.com/s/article/Obtaining-an-Apple-Developer-ID-Certificate-for-macOS-Provisioning?language=en_US&ui-force-components-controllers-recordGlobalValueProvider.RecordGvp.getRecord=1
