@@ -2,7 +2,9 @@
 
 * What is this?
 
-This module contains both the command-line and graphical clients of =rclip=. This has been tested under various Linux distributions, BSD, Mac OS and Windows (10 & 11).
+This module contains both the command-line and graphical clients of =rclip=
+- This has been tested under various Linux distributions, BSD, Mac OS and Windows (10 & 11)
+- This is purposedly a minimalistic application
 
 [[./images/screenshot_gui.png]]
 
@@ -12,10 +14,12 @@ This module contains both the command-line and graphical clients of =rclip=. Thi
   - Supported operating systems: Linux, Mac OS, BSD or Windows
   - Linux: Fuse as both the GUI and command-line executables are AppImage binaries
 - *For builds*:
-  - *Build Tools*: A rust compiler, cargo, cmake, a C and C++ compiler. Please note that the GUI client cannot be built under BSD at this time
+  - *Build Tools*: rust compiler toolchain, cmake, a C and C++ compiler
   - *Tools and Libraries under Linux*:
     - Under Debian-like distributions the following packages are required (=libxcb1-dev=, =libxcb-render0-dev=, =libxcb-shape0-dev=, =libxcb-xfixes0-dev=)
-    - For other Linux distributions, the packages might have a sligthly different naming.
+    - For other Linux distributions, the packages might have a sligthly different naming
+  - BSD notes: Please note that only the CLI client is available for BSD systems
+      
 
 * How to build this?
 
@@ -81,7 +85,7 @@ Without any arguments, the following flags are defaulted.
   ./target/debug/rclip-client-cli --command WRITE --der-cert-pub pub_key_file_location.der
 #+end_src
 
-* How to configure it?
+* How to configure this?
 
 It can become inconvenient to continously provide known command-line or GUI parameters.
 

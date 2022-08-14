@@ -2,12 +2,17 @@
 
 * What is this?
 
-This is the clipboard server command-line application.
+This is the clipboard server command-line application (TCP server).
+- It stores the latest clipboard value published by clients (=rclip-client=)
+- It responds to few commands (READ, WRITE, CLEAR)
+  - /READ/:  get the current clipboard text
+  - /WRITE/:  store clipboard text
+  - /CLEAR/:  clear the current clibpoard text
 
 * What is required?
 
-- *Operating System*: Linux, MacOS, Windows or BSD (FreeBSD, NetBSD, OpenBSD).
-- A [[https://www.rust-lang.org/][rust]] compiler and the [[https://doc.rust-lang.org/cargo/][cargo]] build tool
+- *For execution*: Linux, MacOS, Windows or BSD (FreeBSD, NetBSD, OpenBSD)
+- *For builds*: A [[https://www.rust-lang.org/][rust]] compiler and the [[https://doc.rust-lang.org/cargo/][cargo]] build tool
 
 * How to build this?
 
@@ -29,11 +34,11 @@ The command below starts the server on port =10080= and binds to =127.0.0.1=.
   ./target/release/rclip-server --der-cert-pub rclip-der-cert-pub.der --der-cert-priv rclip-der-cert-priv.der
 #+end_src
 
-** Optional configuration file
+* How to configure this?
 
 It can become inconvenient to continously provide known command-line parameters.
 
-*** Sample configuration file
+*** Optional sample configuration file
 
 #+begin_src conf-toml
   title = "rclip server configuration"
@@ -63,3 +68,9 @@ Notes:
 | Under Windows    | =%APPDATA%\rclip=                                   |
 |------------------+-----------------------------------------------------|
 
+
+* How does it work?
+
+The server is a basic TCP server with a custom text-based protocol (instead of JSON or other formats).
+
+[[./images/architecture.png]]
