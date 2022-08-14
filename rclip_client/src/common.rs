@@ -8,6 +8,8 @@ use std::net;
 use std::path::Path;
 use std::sync::Arc;
 use std::time::SystemTime;
+use copypasta_ext::prelude::*;
+use copypasta_ext::x11_fork::ClipboardContext;
 
 pub const DEFAULT_CONFIG_FILENAME_CLIENT: &str = "config-client.toml";
 
@@ -59,8 +61,7 @@ impl rustls::client::ServerCertVerifier for AcceptSpecificCertsVerifier {
 }
 
 pub fn get_clipboard_contents() -> Result<String, Box<dyn Error + Send + Sync>> {
-    use copypasta::{ClipboardContext, ClipboardProvider};
-    let mut ctx = ClipboardContext::new()?;
+    let mut ctx: ClipboardContext = ClipboardContext::new()?;
 
     // Exception under Windows when the clipboard is empty.
     // Need to revisit it at some point.
@@ -72,22 +73,8 @@ pub fn get_clipboard_contents() -> Result<String, Box<dyn Error + Send + Sync>> 
     Ok(format!("{}", ret))
 }
 
-#[cfg(not(any(target_os = "windows", target_os = "macos")))]
 pub fn set_clipboard_contents(clipboard_text: String) -> Result<(), Box<dyn Error + Send + Sync>> {
-    use copypasta_ext::prelude::*;
-    use copypasta_ext::x11_fork::ClipboardContext;
-
-    let mut ctx = ClipboardContext::new()?;
-    ctx.set_contents(clipboard_text)?;
-
-    Ok(())
-}
-
-#[cfg(any(target_os = "windows", target_os = "macos"))]
-pub fn set_clipboard_contents(clipboard_text: String) -> Result<(), Box<dyn Error + Send + Sync>> {
-    use copypasta::{ClipboardContext, ClipboardProvider};
-
-    let mut ctx = ClipboardContext::new()?;
+    let mut ctx: ClipboardContext = ClipboardContext::new()?;
     ctx.set_contents(clipboard_text)?;
 
     Ok(())

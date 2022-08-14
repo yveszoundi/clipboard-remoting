@@ -21,8 +21,7 @@ path = "src/main_gui.rs"
 
 [dependencies]
 clap = "2.33.3"
-copypasta = "0.7.1"
-copypasta-ext = "0.3.7"
+copypasta-ext = "0.3.9"
 rustls = { version = "0.20.4", features = ["dangerous_configuration"] }
 rclip_config = { path = "../rclip_config" }
 
