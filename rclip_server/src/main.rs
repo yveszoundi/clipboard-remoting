@@ -235,7 +235,6 @@ fn handle_message(data: String, clipboard: Arc<Mutex<String>>) -> String {
                 return format!("SUCCESS:{}", new_clipboard);
             } else if data.starts_with(CMD_CLEAR) {
                 old_clipboard.clear();
-                old_clipboard.push_str(EMPTY_CLIPBOARD_TEXT);
                 return format!("SUCCESS:{}", EMPTY_CLIPBOARD_TEXT);
             } else {
                 return format!("ERROR:Unknown message {}", data);

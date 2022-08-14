@@ -20,7 +20,7 @@ podman run --rm --privileged -v "${PROJECTDIR}":/src -v "${PROJECTDIR}/artifacts
 
 retVal=$?
 if [ $retVal -ne 0 ]; then
-	echo "Failure to create Linux GUI AppImage binary"
+	echo "Failure to build rclip-client"
   exit 1
 fi
 
@@ -30,7 +30,7 @@ podman run --rm --volume "${PWD}":/root/src --workdir /root/src docker.io/joselu
 
 retVal=$?
 if [ $retVal -ne 0 ]; then
-	echo "Failure to build other Linux CLI binaries"
+	echo "Failure to build rclip-server"
   exit 1
 fi
 
