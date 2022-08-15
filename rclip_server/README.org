@@ -3,16 +3,16 @@
 * What is this?
 
 This is the clipboard server command-line application (TCP server).
-- It stores the latest clipboard value published by clients (=rclip-client=)
+- It stores the latest clipboard text sent by clients (=rclip-client=)
 - It responds to few commands (READ, WRITE, CLEAR)
-  - /READ/:  get the current clipboard text
-  - /WRITE/:  store clipboard text
-  - /CLEAR/:  clear the current clibpoard text
+  - /READ/:  Get the current clipboard text
+  - /WRITE/:  Set the current clipboard text
+  - /CLEAR/:  Clear the current clibpoard text
 
 * What is required?
 
 - *For execution*: Linux, MacOS, Windows or BSD (FreeBSD, NetBSD, OpenBSD)
-- *For builds*: A [[https://www.rust-lang.org/][rust]] compiler and the [[https://doc.rust-lang.org/cargo/][cargo]] build tool
+- *For builds*: A [[https://www.rust-lang.org/][rust]] compiler (=1.58+=) and the [[https://doc.rust-lang.org/cargo/][cargo]] build tool
 
 * How to build this?
 

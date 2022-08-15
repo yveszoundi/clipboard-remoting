@@ -1,0 +1,24 @@
+#+TITLE: ci_cd README
+
+*Note*: This will eventually be replaced by GitHub actions or similar one day.
+
+* What is this?
+
+This module offer a collection fo shell scripts for automating the creation of binaries within Docker.
+- Binaries are generated for Mac OS, Linux and Windows
+- At this time, there's manual work for BSD systems (NetBSD, FreeBSD and OpenBSD): artifacts are generated manually inside virtual machines.
+
+  
+* What is required?
+
+A Linux machine: this is tested on a recent version Ubuntu Linux but not the latest release.
+
+|---------------+----------------------------------|
+| Package       | Description                      |
+|---------------+----------------------------------|
+| =podman=      | Container solution for builds    |
+| =imagemagick= | Icons manipulations              |
+| =icnsutils=   | Icons manipulation for Mac OS    |
+| =zip=         | Compression of software packages |
+|---------------+----------------------------------|
+
