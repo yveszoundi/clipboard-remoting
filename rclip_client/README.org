@@ -2,9 +2,9 @@
 
 * What is this?
 
-This module contains both the command-line and graphical clients of =rclip=
+This module contains both the command-line and graphical clients of =rclip=.
 - This has been tested under various Linux distributions, BSD, Mac OS and Windows (10 & 11)
-- This is purposedly a minimalistic application
+- This is purposedly a minimalistic application, written with the [[https://github.com/fltk-rs/fltk-rs][FLTK toolkit]]
 
 [[./images/screenshot_gui.png]]
 
@@ -14,7 +14,7 @@ This module contains both the command-line and graphical clients of =rclip=
   - Supported operating systems: Linux, Mac OS, BSD or Windows
   - Linux: Fuse as both the GUI and command-line executables are AppImage binaries
 - *For builds*:
-  - *Build Tools*: rust compiler toolchain, cmake, a C and C++ compiler
+  - *Build Tools*: rust compiler toolchain (=1.58+=), cmake, a C and C++ compiler
   - *Tools and Libraries under Linux*:
     - Under Debian-like distributions the following packages are required (=libxcb1-dev=, =libxcb-render0-dev=, =libxcb-shape0-dev=, =libxcb-xfixes0-dev=)
     - For other Linux distributions, the packages might have a sligthly different naming

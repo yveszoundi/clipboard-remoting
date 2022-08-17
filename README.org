@@ -44,17 +44,10 @@ I run the =rclip-server= inside an [[https://www.alpinelinux.org/][Alpine Linux]
 - *Pre-Built binaries*: There are binaries published for Windows, MacOS, Linux and BSD (CLI only).
 - *On Linux and BSD systems*
   - For the [[./rclip_server][rclip-server]], a standalone statically-built binary is available.
-  - For the [[./rclip_client][rclip-client]], additional libraries are required (mostly [[https://en.wikipedia.org/wiki/XCB][XCB]] for clipboard interaction).
+  - For the [[./rclip_client][rclip-client]]:
+    - The =fuse= package must be installed for the =rclip-client= ([[https://appimage.org/][AppImage]] binaries)
+    - Additional libraries might be required (mostly [[https://en.wikipedia.org/wiki/XCB][XCB]] for clipboard interaction)
 
 ** Build dependencies
 
 Please check the [[./rclip_server][rclip-server]] and [[./rclip_client][rclip-client]] folders for instructions (README files).
-   
-* How does it work?
-    
-This is more or less how it works (primary use-case illustration).
-- The =rclip-server= is started with references to certificate keys (public and private keys)
-- The =rclip-server= public key is copied to each machine running the =rclip-client=
-- Each machine running the =rclip-client= can exchange text over a network via the =rclip-server=
-
-[[./images/diagram.png]]
