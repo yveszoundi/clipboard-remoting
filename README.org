@@ -8,7 +8,6 @@ The application was created because I wasn't able to quickly get [[https://en.wi
 - It works on several operating systems (Linux, MacOS, Windows, BSD)
 - It allows moving clipboard (plain text format) around, via TCP connections
 
-
 The primary use-case is clipboard-sharing (text only) within a local network (host and guest virtual machines).
 
 * What does it look like?

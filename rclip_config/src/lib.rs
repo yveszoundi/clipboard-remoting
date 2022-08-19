@@ -1,15 +1,15 @@
 use serde::de::DeserializeOwned;
 use std::error::Error;
-use serde::Deserialize;
-use std::fs::File;
-use std::io::Read;
+use serde::{Deserialize, Serialize};
+use std::fs;
+use std::io::{Read, Write};
 
 pub const PROGRAM_GROUP: &str = "rclip";
 pub const DEFAULT_SERVER_HOST: &str = "127.0.0.1";
 pub const DEFAULT_SERVER_PORT: u16  = 10080;
 pub const DEFAULT_FILENAME_DER_CERT_PUB:  &str = "der-cert-pub.der";
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(default)]
 pub struct Server {
     pub host: Option<String>,
@@ -41,12 +41,12 @@ impl Default for ServerConfig {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 #[serde(default)]
 pub struct ServerCertificate {
-    #[serde(rename(deserialize = "der-cert-pub"))]
+    #[serde(rename(deserialize = "der-cert-pub", serialize = "der-cert-pub"))]
     pub der_cert_pub: Option<String>,
-    #[serde(rename(deserialize = "der-cert-priv"))]
+    #[serde(rename(deserialize = "der-cert-priv", serialize = "der-cert-priv"))]
     pub der_cert_priv: Option<String>,
 }
 
@@ -59,10 +59,10 @@ impl Default for ServerCertificate {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(default)]
 pub struct ClientCertificate {
-    #[serde(rename(deserialize = "der-cert-pub"))]
+    #[serde(rename(deserialize = "der-cert-pub", serialize = "der-cert-pub"))]
     pub der_cert_pub: Option<String>,
 }
 
@@ -74,7 +74,7 @@ impl Default for ClientCertificate {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(default)]
 pub struct ClientConfig {
     pub server: Server,
@@ -116,7 +116,7 @@ pub fn load_default_config <T> (filename: &str) -> Result<T, Box<dyn Error>> whe
             let config_client_file = config_dir_rclip_tcp.join(filename);
 
             if config_client_file.exists() {
-                let mut file_config_client = File::open(config_client_file.clone())?;
+                let mut file_config_client = fs::File::open(config_client_file.clone())?;
                 let mut config_data = Vec::new();
                 file_config_client.read_to_end(&mut config_data)?;
                 let config_client: T = toml::from_slice(&config_data)?;
@@ -130,3 +130,29 @@ pub fn load_default_config <T> (filename: &str) -> Result<T, Box<dyn Error>> whe
     Ok(T::default())
 }
 
+// Only used in the GUI Desktop client
+#[allow(dead_code)]
+pub fn save_config <T> (config_instance: T, filename: &str) -> Result<(), Box<dyn Error>>
+where T: Default + Serialize {
+    if let Some(config_dir) = dirs::config_dir() {
+        let cfg_dir = config_dir.join(PROGRAM_GROUP);
+
+        if !cfg_dir.exists() {
+            if let Err(ex) = fs::create_dir_all(&cfg_dir) {
+                return Err(format!("Couldn't create configuration folder: {}. {}", cfg_dir.display(), ex.to_string()).into())
+            }
+        }
+
+        let config_path = cfg_dir.join(filename);
+        let mut f = fs::OpenOptions::new().create(true).write(true).truncate(true).open(config_path.clone())?;        
+        let config_data = toml::to_vec(&config_instance)?;
+
+        if let Err(e) = f.write(&config_data) {
+            Err(format!("Could not save configuration! {}", e.to_string()).into())
+        } else {
+            Ok(())
+        }
+    } else {
+        Err("Cannot determine configuration directory on this machine!".into())
+    }
+}
