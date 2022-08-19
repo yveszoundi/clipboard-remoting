@@ -3,10 +3,11 @@
 * What is this?
 =rclip= is a minimal client-server solution that allows sharing clipboard text over a network.
 
-- =rclip= was created because I wasn't able to quickly get [[https://en.wikipedia.org/wiki/QEMU][QEMU]] working ([[https://gitlab.freedesktop.org/spice/spice/-/issues/39][spice support]]).
-- Going forward, I also need a simple clipboard solution that provides a consistent workflow:
-  - Interoperability with several operating systems (Linux, MacOS, Windows, BSD).
-  - Independence from the virtualization tool ([[https://www.qemu.org/][QEMU]], [[https://www.vmware.com/nl/products/workstation-player.html][VMWare]], etc.).
+The application was created because I wasn't able to quickly get [[https://en.wikipedia.org/wiki/QEMU][QEMU]] working ([[https://gitlab.freedesktop.org/spice/spice/-/issues/39][spice support]])
+- It is independent from specific virtualization tool ([[https://www.qemu.org/][QEMU]], [[https://www.vmware.com/nl/products/workstation-player.html][VMWare]], etc.)
+- It works on several operating systems (Linux, MacOS, Windows, BSD)
+- It allows moving clipboard (plain text format) around, via TCP connections
+
 
 The primary use-case is clipboard-sharing (text only) within a local network (host and guest virtual machines).
 
@@ -32,7 +33,7 @@ Please checkout the [[https://github.com/yveszoundi/rclip/releases][releases]] p
 2. On the =client= machine(s) ([[./rclip_client][rclip-client]]):
    - Upload the server =public key= and the =rclip-client= binary
    - Create optionally a configuration file, with the public certificate key at pre-defined locations
-   - Start sharing textual content across machines via the =rclip-client= (GUI or CLI client).
+   - Start sharing textual content across machines via the =rclip-client= (GUI or CLI client)
 
 I run the =rclip-server= inside an [[https://www.alpinelinux.org/][Alpine Linux]] virtual machine (100 MB of RAM allocated).
 
@@ -40,10 +41,10 @@ I run the =rclip-server= inside an [[https://www.alpinelinux.org/][Alpine Linux]
 
 ** Runtime dependencies
 
-- *Operating System*: Linux, MacOS, Windows, BSD (FreeBSD, OpenBSD, NetBSD).
-- *Pre-Built binaries*: There are binaries published for Windows, MacOS, Linux and BSD (CLI only).
+- *Operating System*: Linux, MacOS, Windows, BSD (FreeBSD, OpenBSD, NetBSD)
+- *Pre-Built binaries*: There are binaries published for Windows, MacOS, Linux and BSD (CLI only)
 - *On Linux and BSD systems*
-  - For the [[./rclip_server][rclip-server]], a standalone statically-built binary is available.
+  - For the [[./rclip_server][rclip-server]], a standalone statically-built binary is available
   - For the [[./rclip_client][rclip-client]]:
     - The =fuse= package must be installed for the =rclip-client= ([[https://appimage.org/][AppImage]] binaries)
     - Additional libraries might be required (mostly [[https://en.wikipedia.org/wiki/XCB][XCB]] for clipboard interaction)

@@ -257,6 +257,10 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         let mut key_button = key_button.clone();
 
         let mut buttons_pack = buttons_pack.clone();
+        
+        let mut button_receive = button_receive.clone();
+        let mut button_send = button_send.clone();
+        let mut button_clear = button_clear.clone();
 
         let lw = {
             let mut lw = 100;
@@ -300,6 +304,15 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
                 key_frame.resize(SIZE_PACK_SPACING, widy, lw, ROW_HEIGHT);
                 key_input_rc.borrow_mut().resize(SIZE_PACK_SPACING * 2 + lw, widy, widw - lw - SIZE_PACK_SPACING * 2 - BUTTON_WIDTH, ROW_HEIGHT);
                 key_button.resize(widw - BUTTON_WIDTH - SIZE_PACK_SPACING, widy, BUTTON_WIDTH, ROW_HEIGHT);
+
+                let mut posx = SIZE_PACK_SPACING;
+
+                button_receive.resize(posx, buttons_pack.y(), BUTTON_WIDTH, ROW_HEIGHT);
+                posx += SIZE_PACK_SPACING + BUTTON_WIDTH;
+                button_send.resize(posx, buttons_pack.y(), BUTTON_WIDTH, ROW_HEIGHT);
+                posx += SIZE_PACK_SPACING + BUTTON_WIDTH;
+                button_clear.resize(posx, buttons_pack.y(), BUTTON_WIDTH, ROW_HEIGHT);
+
 
                 true
             }
