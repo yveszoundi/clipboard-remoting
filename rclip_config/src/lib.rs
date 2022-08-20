@@ -132,8 +132,7 @@ pub fn load_default_config <T> (filename: &str) -> Result<T, Box<dyn Error>> whe
 
 // Only used in the GUI Desktop client
 #[allow(dead_code)]
-pub fn save_config <T> (config_instance: T, filename: &str) -> Result<(), Box<dyn Error>>
-where T: Default + Serialize {
+pub fn save_config <T> (config_instance: T, filename: &str) -> Result<(), Box<dyn Error>> where T: Default + Serialize {
     if let Some(config_dir) = dirs::config_dir() {
         let cfg_dir = config_dir.join(PROGRAM_GROUP);
 

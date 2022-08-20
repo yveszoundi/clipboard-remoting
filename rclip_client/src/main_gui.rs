@@ -60,7 +60,6 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
     if let Some(server_port) = client_config.server.port {
         let port_number_text = format!("{}", server_port);
-
         port_input_rc.borrow_mut().set_value(&port_number_text);
     }
 
