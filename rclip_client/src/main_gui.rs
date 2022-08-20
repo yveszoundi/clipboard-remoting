@@ -1,8 +1,6 @@
 #![windows_subsystem = "windows"]
 
-use fltk::{
-    app, button, dialog, enums, group, input, prelude::*, window, frame, draw
-};
+use fltk::{app, button, dialog, draw, enums, frame, input, prelude::*, window};
 use rclip_config;
 use std::cell::RefCell;
 use std::error::Error;
@@ -11,11 +9,11 @@ use std::rc::Rc;
 mod common;
 
 const SIZE_PACK_SPACING: i32 = 10;
-const ROW_HEIGHT: i32        = 40;
-const BUTTON_WIDTH: i32      = 80;
-const WINDOW_WIDTH: i32      = 430;
-const WINDOW_HEIGHT: i32     = 260;
-const LABEL_WIDTH: i32       = 150;
+const ROW_HEIGHT: i32 = 40;
+const BUTTON_WIDTH: i32 = 80;
+const WINDOW_WIDTH: i32 = 430;
+const WINDOW_HEIGHT: i32 = 260;
+const LABEL_WIDTH: i32 = 150;
 
 fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let app = app::App::default().with_scheme(app::Scheme::Gleam);
@@ -33,21 +31,12 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     wind.set_xclass("rclip");
     wind.make_resizable(true);
 
-    let mut host_pack = group::Pack::default()
-        .with_pos(SIZE_PACK_SPACING, SIZE_PACK_SPACING)
-        .with_size(400, ROW_HEIGHT)
-        .with_type(group::PackType::Horizontal);
-    host_pack.set_spacing(SIZE_PACK_SPACING);
-
     let host_frame = frame::Frame::default()
         .with_size(LABEL_WIDTH, ROW_HEIGHT)
         .with_label("Server host")
         .with_align(enums::Align::Inside | enums::Align::Right);
 
-    let host_input_rc = Rc::new(RefCell::new(
-        input::Input::default()
-            .with_size(200, 20)
-    ));
+    let host_input_rc = Rc::new(RefCell::new(input::Input::default().with_size(200, 20)));
 
     let client_config =
         match rclip_config::load_default_config(common::DEFAULT_CONFIG_FILENAME_CLIENT) {
@@ -55,28 +44,19 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
             _ => rclip_config::ClientConfig::default(),
         };
 
-    host_input_rc.borrow_mut().set_tooltip("IP address to bind to");
+    host_input_rc
+        .borrow_mut()
+        .set_tooltip("IP address to bind to");
 
     if let Some(server_host) = client_config.server.host {
         host_input_rc.borrow_mut().set_value(&server_host);
     }
 
-    host_pack.end();
-
-    let mut port_pack = group::Pack::default()
-        .with_size(400, ROW_HEIGHT)
-        .below_of(&host_pack, SIZE_PACK_SPACING)
-        .with_type(group::PackType::Horizontal);
-
-    port_pack.set_spacing(SIZE_PACK_SPACING);
     let port_frame = frame::Frame::default()
         .with_size(LABEL_WIDTH, ROW_HEIGHT)
         .with_label("Server port")
         .with_align(enums::Align::Inside | enums::Align::Right);
-    let port_input_rc = Rc::new(RefCell::new(
-        input::Input::default()
-            .with_size(200, 20)
-    ));
+    let port_input_rc = Rc::new(RefCell::new(input::Input::default().with_size(200, 20)));
 
     if let Some(server_port) = client_config.server.port {
         let port_number_text = format!("{}", server_port);
@@ -85,21 +65,12 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     }
 
     port_input_rc.borrow_mut().set_tooltip("Server port number");
-    port_pack.end();
 
-    let mut key_pack = group::Pack::default()
-        .with_size(400, ROW_HEIGHT)
-        .below_of(&port_pack, SIZE_PACK_SPACING)
-        .with_type(group::PackType::Horizontal);
-    key_pack.set_spacing(SIZE_PACK_SPACING);
     let key_frame = frame::Frame::default()
         .with_size(LABEL_WIDTH, ROW_HEIGHT)
         .with_label("Public key")
         .with_align(enums::Align::Inside | enums::Align::Right);
-    let key_input_rc = Rc::new(RefCell::new(
-        input::Input::default()
-            .with_size(200, 20)
-    ));
+    let key_input_rc = Rc::new(RefCell::new(input::Input::default().with_size(200, 20)));
 
     if let Some(pub_key_loc) =
         rclip_config::resolve_default_cert_path(rclip_config::DEFAULT_FILENAME_DER_CERT_PUB)
@@ -107,9 +78,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         key_input_rc.borrow_mut().set_value(&pub_key_loc);
     }
 
-    key_input_rc
-        .borrow_mut()
-        .set_tooltip("Public DER key path");
+    key_input_rc.borrow_mut().set_tooltip("Public DER key path");
     let mut key_button = button::Button::default()
         .with_size(BUTTON_WIDTH, 20)
         .with_label("Browse...");
@@ -129,30 +98,26 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
             }
         }
     });
-    key_pack.end();
 
     let mut saveprefs_button = button::Button::default()
         .with_size(400, ROW_HEIGHT)
-        .with_label("Save current settings as defaults")
-        .below_of(&key_pack, SIZE_PACK_SPACING);
+        .with_label("Save current settings as defaults");
+
     saveprefs_button.set_label_color(enums::Color::White);
     saveprefs_button.set_color(enums::Color::Blue);
 
-    let mut buttons_pack = group::Pack::default()
-        .with_size(400, ROW_HEIGHT)
-        .below_of(&saveprefs_button, SIZE_PACK_SPACING)
-        .with_type(group::PackType::Horizontal);
-    buttons_pack.set_spacing(SIZE_PACK_SPACING);
-
     let mut button_receive = button::Button::default()
         .with_size(BUTTON_WIDTH, 20)
-        .with_label("Read");
+        .with_label("Paste");
+    button_receive.set_tooltip("Paste from clipboard server");
     let mut button_send = button::Button::default()
         .with_size(BUTTON_WIDTH, 20)
-        .with_label("Write");
+        .with_label("Copy");
+    button_send.set_tooltip("Copy to clipboard server");
     let mut button_clear = button::Button::default()
         .with_size(BUTTON_WIDTH, 20)
         .with_label("Clear");
+    button_clear.set_tooltip("Clear clipboard server text");
 
     fn send_cmd(
         host_text: String,
@@ -218,16 +183,20 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
             let cert_path = input_pub_cert_ref.borrow().value();
 
             let inputs_to_check = [&host_text, &port_text, &cert_path];
-            let inputs_err_messages = [ "ERROR: The 'Server host' is required!", "ERROR: The 'Server port' number is required!", "ERROR: The 'Public key' path is required!"];
+            let inputs_err_messages = [
+                "ERROR: The 'Server host' is required!",
+                "ERROR: The 'Server port' number is required!",
+                "ERROR: The 'Public key' path is required!",
+            ];
             let mut err_found = false;
 
             for i in 0..inputs_to_check.len() {
                 if inputs_to_check[i].is_empty() {
                     dialog::alert(
-                            wind_ref.x(),
-                            wind_ref.y() + wind_ref.height() / 2,
-                            inputs_err_messages[i]
-                        );
+                        wind_ref.x(),
+                        wind_ref.y() + wind_ref.height() / 2,
+                        inputs_err_messages[i],
+                    );
                     err_found = true;
                     break;
                 }
@@ -243,35 +212,32 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
                     client_config.server = rclip_config::Server {
                         host: Some(host_text.to_owned()),
-                        port: Some(port_number)
+                        port: Some(port_number),
                     };
 
                     client_config.certificate = rclip_config::ClientCertificate {
-                        der_cert_pub: Some(cert_path.to_owned())
+                        der_cert_pub: Some(cert_path.to_owned()),
                     };
 
-                    if let Err(ex) = rclip_config::save_config(client_config, common::DEFAULT_CONFIG_FILENAME_CLIENT) {
-                        let err_msg = format!("ERROR: Failed to save settings!\n{}", ex.to_string());
-                        dialog::alert(
-                            wind_ref.x(),
-                            wind_ref.y() + wind_ref.height() / 2,
-                            &err_msg
-                        );
+                    if let Err(ex) = rclip_config::save_config(
+                        client_config,
+                        common::DEFAULT_CONFIG_FILENAME_CLIENT,
+                    ) {
+                        let err_msg =
+                            format!("ERROR: Failed to save settings!\n{}", ex.to_string());
+                        dialog::alert(wind_ref.x(), wind_ref.y() + wind_ref.height() / 2, &err_msg);
                     } else {
                         dialog::alert(
                             wind_ref.x(),
                             wind_ref.y() + wind_ref.height() / 2,
-                            "Successfully saved settings!"
+                            "Successfully saved settings!",
                         );
-}
-                },
+                    }
+                }
                 Err(ex) => {
-                    let err_msg = format!("ERROR: Failed to parse port number!\n{}", ex.to_string());
-                    dialog::alert(
-                        wind_ref.x(),
-                        wind_ref.y() + wind_ref.height() / 2,
-                        &err_msg
-                    );
+                    let err_msg =
+                        format!("ERROR: Failed to parse port number!\n{}", ex.to_string());
+                    dialog::alert(wind_ref.x(), wind_ref.y() + wind_ref.height() / 2, &err_msg);
                 }
             }
         }
@@ -322,25 +288,21 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     });
 
     wind.handle({
-        let mut host_pack = host_pack.clone();
         let mut host_frame = host_frame.clone();
         let host_input_rc = host_input_rc.clone();
 
-        let mut port_pack = port_pack.clone();
         let mut port_frame = port_frame.clone();
         let port_input_rc = port_input_rc.clone();
 
-        let mut key_pack = key_pack.clone();
         let mut key_frame = key_frame.clone();
         let key_input_rc = key_input_rc.clone();
         let mut key_button = key_button.clone();
 
-        let mut buttons_pack = buttons_pack.clone();
+        let mut saveprefs_button = saveprefs_button.clone();
 
         let mut button_receive = button_receive.clone();
         let mut button_send = button_send.clone();
         let mut button_clear = button_clear.clone();
-        let mut saveprefs_button = saveprefs_button.clone();
 
         let lw = {
             let mut lw = 100;
@@ -356,48 +318,66 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
             enums::Event::Move => {
                 wid.redraw();
                 true
-            },
+            }
             enums::Event::Resize => {
                 let widw = wid.w() - (SIZE_PACK_SPACING * 2);
 
                 let mut widy = SIZE_PACK_SPACING;
-                host_pack.resize(SIZE_PACK_SPACING, widy, widw, ROW_HEIGHT);
 
-                widy += SIZE_PACK_SPACING + ROW_HEIGHT;
-                port_pack.resize(SIZE_PACK_SPACING, widy, widw, ROW_HEIGHT);
-
-                widy += SIZE_PACK_SPACING + ROW_HEIGHT;
-                key_pack.resize(SIZE_PACK_SPACING, widy, widw, ROW_HEIGHT);
-
-                widy += SIZE_PACK_SPACING + ROW_HEIGHT;
-                saveprefs_button.resize(SIZE_PACK_SPACING, widy, (BUTTON_WIDTH * 3) + (SIZE_PACK_SPACING * 2), ROW_HEIGHT);
-
-                widy += SIZE_PACK_SPACING + ROW_HEIGHT;
-                buttons_pack.resize(SIZE_PACK_SPACING, widy, widw, ROW_HEIGHT);
-
-                widy = SIZE_PACK_SPACING;
                 host_frame.resize(SIZE_PACK_SPACING, widy, lw, ROW_HEIGHT);
-                host_input_rc.borrow_mut().resize(SIZE_PACK_SPACING * 2 + lw, widy, widw - lw - SIZE_PACK_SPACING, ROW_HEIGHT);
+                host_input_rc.borrow_mut().resize(
+                    SIZE_PACK_SPACING + lw + SIZE_PACK_SPACING,
+                    widy,
+                    widw - lw - SIZE_PACK_SPACING,
+                    ROW_HEIGHT,
+                );
 
                 widy += SIZE_PACK_SPACING + ROW_HEIGHT;
                 port_frame.resize(SIZE_PACK_SPACING, widy, lw, ROW_HEIGHT);
-                port_input_rc.borrow_mut().resize(SIZE_PACK_SPACING * 2 + lw, widy, widw - lw - SIZE_PACK_SPACING, ROW_HEIGHT);
-
-
+                port_input_rc.borrow_mut().resize(
+                    SIZE_PACK_SPACING + lw + SIZE_PACK_SPACING,
+                    widy,
+                    widw - lw - SIZE_PACK_SPACING,
+                    ROW_HEIGHT,
+                );
 
                 widy += SIZE_PACK_SPACING + ROW_HEIGHT;
                 key_frame.resize(SIZE_PACK_SPACING, widy, lw, ROW_HEIGHT);
-                key_input_rc.borrow_mut().resize(SIZE_PACK_SPACING * 2 + lw, widy, widw - lw - SIZE_PACK_SPACING * 2 - BUTTON_WIDTH, ROW_HEIGHT);
-                key_button.resize(widw - BUTTON_WIDTH - SIZE_PACK_SPACING, widy, BUTTON_WIDTH, ROW_HEIGHT);
+                key_input_rc.borrow_mut().resize(
+                    SIZE_PACK_SPACING + lw + SIZE_PACK_SPACING,
+                    widy,
+                    widw - lw - SIZE_PACK_SPACING - BUTTON_WIDTH - SIZE_PACK_SPACING,
+                    ROW_HEIGHT,
+                );
+                key_button.resize(
+                    wid.w() - SIZE_PACK_SPACING - BUTTON_WIDTH,
+                    widy,
+                    BUTTON_WIDTH,
+                    ROW_HEIGHT,
+                );
 
-                let mut posx = SIZE_PACK_SPACING;
+                widy += SIZE_PACK_SPACING + ROW_HEIGHT;
+                saveprefs_button.resize(SIZE_PACK_SPACING, widy, widw, ROW_HEIGHT);
 
-                button_receive.resize(posx, buttons_pack.y(), BUTTON_WIDTH, ROW_HEIGHT);
-                posx += SIZE_PACK_SPACING + BUTTON_WIDTH;
-                button_send.resize(posx, buttons_pack.y(), BUTTON_WIDTH, ROW_HEIGHT);
-                posx += SIZE_PACK_SPACING + BUTTON_WIDTH;
-                button_clear.resize(posx, buttons_pack.y(), BUTTON_WIDTH, ROW_HEIGHT);
-
+                widy += SIZE_PACK_SPACING + ROW_HEIGHT;
+                button_clear.resize(
+                    wid.w() - SIZE_PACK_SPACING - BUTTON_WIDTH,
+                    widy,
+                    BUTTON_WIDTH,
+                    ROW_HEIGHT,
+                );
+                button_send.resize(
+                    wid.w() - (SIZE_PACK_SPACING * 2) - (BUTTON_WIDTH * 2),
+                    widy,
+                    BUTTON_WIDTH,
+                    ROW_HEIGHT,
+                );
+                button_receive.resize(
+                    wid.w() - (SIZE_PACK_SPACING * 3) - (BUTTON_WIDTH * 3),
+                    widy,
+                    BUTTON_WIDTH,
+                    ROW_HEIGHT,
+                );
 
                 true
             }
@@ -411,11 +391,9 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         }
     });
 
-    buttons_pack.end();
-
     #[cfg(target_os = "macos")]
     {
-        use fltk:: menu;
+        use fltk::menu;
 
         menu::mac_set_about({
             let wind_ref = wind.clone();
@@ -449,6 +427,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
                 win.end();
                 win.make_modal(true);
+                win.make_resizable(true);
                 win.show();
 
                 while win.shown() {

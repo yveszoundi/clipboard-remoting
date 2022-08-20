@@ -1,3 +1,5 @@
+use copypasta_ext::prelude::*;
+use copypasta_ext::x11_fork::ClipboardContext;
 use rustls::client::ServerCertVerified;
 use rustls::{Certificate, ServerName};
 use std::convert::TryFrom;
@@ -8,8 +10,6 @@ use std::net;
 use std::path::Path;
 use std::sync::Arc;
 use std::time::SystemTime;
-use copypasta_ext::prelude::*;
-use copypasta_ext::x11_fork::ClipboardContext;
 
 pub const DEFAULT_CONFIG_FILENAME_CLIENT: &str = "config-client.toml";
 
