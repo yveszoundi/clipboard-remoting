@@ -9,11 +9,11 @@ use std::rc::Rc;
 mod common;
 
 const SIZE_PACK_SPACING: i32 = 10;
-const ROW_HEIGHT: i32 = 40;
-const BUTTON_WIDTH: i32 = 80;
-const WINDOW_WIDTH: i32 = 430;
-const WINDOW_HEIGHT: i32 = 260;
-const LABEL_WIDTH: i32 = 150;
+const ROW_HEIGHT: i32        = 40;
+const BUTTON_WIDTH: i32      = 80;
+const WINDOW_WIDTH: i32      = 430;
+const WINDOW_HEIGHT: i32     = 260;
+const LABEL_WIDTH: i32       = 150;
 
 fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let app = app::App::default().with_scheme(app::Scheme::Gleam);
@@ -38,11 +38,11 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
     let host_input_rc = Rc::new(RefCell::new(input::Input::default().with_size(200, 20)));
 
-    let client_config =
-        match rclip_config::load_default_config(common::DEFAULT_CONFIG_FILENAME_CLIENT) {
-            Ok(cfg) => cfg,
-            _ => rclip_config::ClientConfig::default(),
-        };
+    let client_config = if let Ok(cfg) = rclip_config::load_default_config(common::DEFAULT_CONFIG_FILENAME_CLIENT) {
+        cfg
+    } else {
+        rclip_config::ClientConfig::default()
+    };
 
     host_input_rc
         .borrow_mut()
@@ -132,9 +132,10 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
         let server_port = port_text.parse::<u16>()?;
 
-        match common::send_cmd(host_text, server_port, key_pub_der, clipboard_cmd) {
-            Ok(_) => Ok(()),
-            Err(ex) => Err(format!("{}", ex.to_string()).into()),
+        if let Err(ex) = common::send_cmd(host_text, server_port, key_pub_der, clipboard_cmd) {
+            Err(format!("{}", ex.to_string()).into())
+        } else {
+            Ok(())
         }
     }
 
@@ -178,7 +179,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         move |_| {
             let host_text = input_host_ref.borrow().value();
             let port_text = input_port_ref.borrow().value();
-            let port_number_ret = port_text.parse::<u16>();
+            let ret_port_number = port_text.parse::<u16>();
             let cert_path = input_pub_cert_ref.borrow().value();
 
             let inputs_to_check = [&host_text, &port_text, &cert_path];
@@ -205,7 +206,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
                 return;
             }
 
-            match port_number_ret {
+            match ret_port_number {
                 Ok(port_number) => {
                     let mut client_config = rclip_config::ClientConfig::default();
 
