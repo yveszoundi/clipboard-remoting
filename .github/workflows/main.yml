@@ -1,0 +1,273 @@
+name: Release
+
+on: workflow_dispatch
+
+jobs:
+  # macos_amd64:
+  #   name: Mac OS amd64 build
+  #   runs-on: macos-11
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - name: Build
+  #     shell: bash
+  #     run: |
+  #       APPVERSION=$(awk -F ' = ' '$1 ~ /version/ { gsub(/[\"]/, "", $2); printf("%s",$2) }' rclip_client/Cargo.toml)
+  #       echo "rclip_version=$APPVERSION" >> $GITHUB_ENV
+        
+  #       mkdir -p artifacts/rclip-macos-amd64-${APPVERSION}
+
+  #       CARGO_NET_GIT_FETCH_WITH_CLI=true CARGO_NET_RETRY=10 RUSTFLAGS='-C target-feature=+crt-static' cargo build --release --manifest-path rclip_client/Cargo.toml --features=gui
+  #       CARGO_NET_GIT_FETCH_WITH_CLI=true CARGO_NET_RETRY=10 RUSTFLAGS='-C target-feature=+crt-static' cargo build --release --manifest-path rclip_server/Cargo.toml
+        
+  #       cp rclip_client/target/release/rclip-client-gui artifacts/rclip-macos-amd64-${APPVERSION}/
+  #       cp rclip_client/target/release/rclip-client-cli artifacts/rclip-macos-amd64-${APPVERSION}/
+  #       cp rclip_server/target/release/rclip-server     artifacts/rclip-macos-amd64-${APPVERSION}/
+
+  #       cd artifacts && tar cvf rclip-macos-amd64-${APPVERSION}.tar rclip-macos-amd64-${APPVERSION}
+  #       cd -
+  #   - name: Upload a Build Artifact
+  #     uses: actions/upload-artifact@v3
+  #     with:
+  #       name: rclip-macos-amd64
+  #       path: ${{ github.workspace }}/artifacts/rclip-macos-amd64-${{ env.rclip_version }}.tar  
+  # windows:
+  #   name: Windows amd64 build
+  #   runs-on: ubuntu-latest
+  #   container:
+  #     image: uycyjnzgntrn/rust-windows:1.64.0
+  #     volumes:
+  #       - ${{ github.workspace }}:/src
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - name: Build
+  #     shell: bash
+  #     run: |
+  #       APPVERSION=$(awk -F ' = ' '$1 ~ /version/ { gsub(/[\"]/, "", $2); printf("%s",$2) }' rclip_client/Cargo.toml)
+  #       echo "rclip_version=$APPVERSION" >> $GITHUB_ENV
+  #       cargo clean --manifest-path rclip_client/Cargo.toml
+  #       cargo clean --manifest-path rclip_server/Cargo.toml
+  #       rm -rf artifacts
+  #       RUSTFLAGS='-C target-feature=+crt-static' cargo build --release --features=gui --target x86_64-pc-windows-gnu --manifest-path rclip_client/Cargo.toml
+  #       RUSTFLAGS='-C target-feature=+crt-static' cargo build --release                --target x86_64-pc-windows-gnu --manifest-path rclip_server/Cargo.toml
+  #       mkdir -p artifacts/rclip-windows-amd64-${APPVERSION}
+  #       cp rclip_client/target/x86_64-pc-windows-gnu/release/*.exe artifacts/rclip-windows-amd64-${APPVERSION}/
+  #       cp rclip_server/target/x86_64-pc-windows-gnu/release/*.exe artifacts/rclip-windows-amd64-${APPVERSION}/
+  #       cd artifacts && tar cvf rclip-windows-amd64-${APPVERSION}.tar rclip-windows-amd64-${APPVERSION}
+  #       cd -
+  #   - name: Upload a Build Artifact
+  #     uses: actions/upload-artifact@v3
+  #     with:
+  #       name: rclip-windows-amd64
+  #       path: ${{ github.workspace }}/artifacts/rclip-windows-amd64-${{ env.rclip_version }}.tar
+  # linux:
+  #   name: Linux amd64 build
+  #   runs-on: ubuntu-latest
+  #   container:
+  #     image: uycyjnzgntrn/rust-linux:1.64.0
+  #     options: "--privileged --cap-add SYS_ADMIN --device /dev/fuse"
+  #     volumes:
+  #       - ${{ github.workspace }}:/src
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - name: Build
+  #     shell: bash
+  #     run: |
+  #       APPVERSION=$(awk -F ' = ' '$1 ~ /version/ { gsub(/[\"]/, "", $2); printf("%s",$2) }' rclip_client/Cargo.toml)
+  #       echo "rclip_version=$APPVERSION" >> $GITHUB_ENV
+  #       cargo clean --manifest-path rclip_client/Cargo.toml
+  #       cargo clean --manifest-path rclip_server/Cargo.toml
+  #       rm -rf artifacts
+  #       mkdir -p artifacts/rclip-linux-amd64-${APPVERSION}
+
+  #       cargo build --release --features=gui --manifest-path rclip_client/Cargo.toml
+  #       RUSTFLAGS='-C target-feature=+crt-static' cargo build --release --target x86_64-unknown-linux-musl --manifest-path rclip_server/Cargo.toml
+        
+  #       cp rclip_server/target/x86_64-unknown-linux-musl/release/rclip-server artifacts/rclip-linux-amd64-${APPVERSION}/
+        
+  #       mkdir -p /tmp/appdir-gui/usr/bin /tmp/appdir-gui/usr/share/icons
+  #       cp ci_cd/linux/xdg/AppRun-gui /tmp/appdir-gui/AppRun
+  #       cp ci_cd/linux/xdg/*gui.desktop /tmp/appdir-gui/ 
+  #       cp images/Rclip.png /tmp/appdir-gui/usr/share/icons/rclip-client-gui.png
+  #       ARCH=x86_64 linuxdeploy --appdir /tmp/appdir-gui --desktop-file /tmp/appdir-gui/rclip-client-gui.desktop --icon-filename /tmp/appdir/usr/share/icons/rclip-client-gui.png --output appimage
+  #       mv *.AppImage artifacts/rclip-linux-amd64-${APPVERSION}/rclip-client-gui
+
+  #       mkdir -p /tmp/appdir-cli/usr/bin /tmp/appdir-cli/usr/share/icons
+  #       cp ci_cd/linux/xdg/AppRun-cli /tmp/appdir-cli/AppRun
+  #       cp ci_cd/linux/xdg/*cli.desktop /tmp/appdir-cli/
+  #       cp images/Rclip.png /tmp/appdir-cli/usr/share/icons/rclip-client-cli.png
+  #       ARCH=x86_64 linuxdeploy --appdir /tmp/appdir-cli --desktop-file /tmp/appdir-cli/rclip-client-cli.desktop --icon-filename /tmp/appdir/usr/share/icons/rclip-client-cli.png --output appimage
+  #       mv *.AppImage artifacts/rclip-linux-amd64-${APPVERSION}/rclip-client-cli
+
+  #       cd artifacts && tar cvf rclip-linux-amd64-${APPVERSION}.tar rclip-linux-amd64-${APPVERSION}
+  #       cd -
+  #   - name: Upload a Build Artifact
+  #     uses: actions/upload-artifact@v3
+  #     with:
+  #       name: rclip-linux-amd64
+  #       path: ${{ github.workspace }}/artifacts/rclip-linux-amd64-${{ env.rclip_version }}.tar
+  # macos:
+  #   name: Mac OS amd64 build
+  #   runs-on: macos-10.15
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - name: Build
+  #     shell: bash
+  #     run: |
+  #       APPVERSION=$(awk -F ' = ' '$1 ~ /version/ { gsub(/[\"]/, "", $2); printf("%s",$2) }' rclip_client/Cargo.toml)
+  #       echo "rclip_version=$APPVERSION" >> $GITHUB_ENV
+  #       cargo clean --manifest-path rclip_client/Cargo.toml
+  #       cargo clean --manifest-path rclip_server/Cargo.toml
+  #       rm -rf artifacts
+  #       RUSTFLAGS='-C target-feature=+crt-static' cargo build --release --features=gui --manifest-path rclip_client/Cargo.toml
+  #       RUSTFLAGS='-C target-feature=+crt-static' cargo build --release --manifest-path rclip_server/Cargo.toml
+  #       mkdir -p artifacts/rclip-macos-amd64-${APPVERSION}        
+        
+  #       cp rclip_client/target/release/rclip-client-gui artifacts/rclip-macos-amd64-${APPVERSION}/
+  #       cp rclip_client/target/release/rclip-client-cli artifacts/rclip-macos-amd64-${APPVERSION}/
+  #       cp rclip_server/target/release/rclip-server     artifacts/rclip-macos-amd64-${APPVERSION}/
+
+  #       cd artifacts && tar cvf rclip-macos-amd64-${APPVERSION}.tar rclip-macos-amd64-${APPVERSION}
+  #       cd -
+  #   - name: Upload a Build Artifact
+  #     uses: actions/upload-artifact@v3
+  #     with:
+  #       name: rclip-macos-amd64
+  #       path: ${{ github.workspace }}/artifacts/rclip-macos-amd64-${{ env.rclip_version }}.tar
+  # openbsd:
+  #   name: OpenBSD amd64 build
+  #   runs-on: macos-12
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - name: Store version
+  #     shell: bash
+  #     run: |
+  #       APPVERSION=$(awk -F ' = ' '$1 ~ /version/ { gsub(/[\"]/, "", $2); printf("%s",$2) }' rclip_client/Cargo.toml)
+  #       echo "version is $APPVERSION"
+  #       echo "rclip_version=$APPVERSION" >> $GITHUB_ENV      
+  #   - name: Build
+  #     uses: vmactions/openbsd-vm@v0
+  #     with:
+  #       usesh: true
+  #       prepare: |
+  #         pkg_add cargo rust
+  #       run: |
+  #         APPVERSION=`awk -F ' = ' '$1 ~ /version/ { gsub(/[\"]/, "", $2); printf("%s",$2) }' rclip_client/Cargo.toml`
+
+  #         cargo clean --manifest-path rclip_client/Cargo.toml
+  #         cargo clean --manifest-path rclip_server/Cargo.toml
+
+  #         rm -rf artifacts
+  #         mkdir -p artifacts/rclip-openbsd-amd64-${APPVERSION}
+
+  #         RUSTFLAGS='-C target-feature=+crt-static' cargo build --release --manifest-path rclip_client/Cargo.toml
+  #         cp rclip_client/target/release/rclip-client-cli artifacts/rclip-openbsd-amd64-${APPVERSION}/
+  #         cargo clean --manifest-path rclip_client/Cargo.toml
+
+  #         RUSTFLAGS='-C target-feature=+crt-static' cargo build --release --manifest-path rclip_server/Cargo.toml
+  #         cp rclip_server/target/release/rclip-server     artifacts/rclip-openbsd-amd64-${APPVERSION}/
+  #         cargo clean --manifest-path rclip_server/Cargo.toml
+
+  #         cd artifacts && tar cvf rclip-openbsd-amd64-${APPVERSION}.tar rclip-openbsd-amd64-${APPVERSION}
+  #         cd -
+  #   - name: Upload a Build Artifact
+  #     uses: actions/upload-artifact@v3
+  #     with:
+  #       name: rclip-freebsd-amd64
+  #       path: ${{ github.workspace }}/artifacts/rclip-openbsd-amd64-${{ env.rclip_version }}.tar
+  # freebsd:
+  #   name: FreeBSD amd64 build
+  #   runs-on: macos-12
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - name: Store version
+  #     shell: bash
+  #     run: |
+  #       APPVERSION=$(awk -F ' = ' '$1 ~ /version/ { gsub(/[\"]/, "", $2); printf("%s",$2) }' rclip_client/Cargo.toml)
+  #       echo "version is $APPVERSION"
+  #       echo "rclip_version=$APPVERSION" >> $GITHUB_ENV
+  #   - name: Build
+  #     uses: vmactions/freebsd-vm@v0
+  #     with:
+  #       usesh: true
+  #       prepare: |          
+  #         pkg update
+  #         pkg install -y curl xcb-proto libxcb
+  #         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+  #       run: |
+  #         APPVERSION=`awk -F ' = ' '$1 ~ /version/ { gsub(/[\"]/, "", $2); printf("%s",$2) }' rclip_client/Cargo.toml`
+
+  #         ~/.cargo/bin/cargo clean --manifest-path rclip_client/Cargo.toml
+  #         ~/.cargo/bin/cargo clean --manifest-path rclip_server/Cargo.toml
+
+  #         rm -rf artifacts
+  #         mkdir -p artifacts/rclip-freebsd-amd64-${APPVERSION}
+          
+  #         RUSTFLAGS='-C target-feature=+crt-static' ~/.cargo/bin/cargo build --release --manifest-path rclip_client/Cargo.toml          
+  #         cp rclip_client/target/release/rclip-client-cli artifacts/rclip-freebsd-amd64-${APPVERSION}/          
+  #         ~/.cargo/bin/cargo clean --manifest-path rclip_client/Cargo.toml
+          
+  #         RUSTFLAGS='-C target-feature=+crt-static' ~/.cargo/bin/cargo build --release  --manifest-path rclip_server/Cargo.toml          
+  #         cp rclip_server/target/release/rclip-server     artifacts/rclip-freebsd-amd64-${APPVERSION}/
+  #         ~/.cargo/bin/cargo clean --manifest-path rclip_server/Cargo.toml
+
+  #         cd artifacts && tar cvf rclip-freebsd-amd64-${APPVERSION}.tar rclip-freebsd-amd64-${APPVERSION}
+  #         cd -
+  #   - name: Upload a Build Artifact
+  #     uses: actions/upload-artifact@v3
+  #     with:
+  #       name: rclip-freebsd-amd64
+  #       path: ${{ github.workspace }}/artifacts/rclip-freebsd-amd64-${{ env.rclip_version }}.tar
+  netbsd:
+    name: NetBSD amd64 build
+    runs-on: macos-12
+    steps:
+    - uses: actions/checkout@v3
+    - name: Store version
+      shell: bash
+      run: |
+        APPVERSION=$(awk -F ' = ' '$1 ~ /version/ { gsub(/[\"]/, "", $2); printf("%s",$2) }' rclip_client/Cargo.toml)
+        echo "version is $APPVERSION"
+        echo "rclip_version=$APPVERSION" >> $GITHUB_ENV
+    - name: Build
+      uses: vmactions/netbsd-vm@v0
+      with:
+        usesh: true
+        release: "9.0"
+        prepare: |
+          PKG_PATH="http://ftp.netbsd.org/pub/pkgsrc/packages/NetBSD/amd64/9.0/All"
+          pkg_add pkgin
+          PATH="/usr/pkg/sbin:/usr/pkg/bin:$PATH"
+          pkgin update
+          pkgin -y install rust curl mozilla-rootcerts-openssl
+          pkg_add https://nycdn.netbsd.org/pub/pkgsrc/packages/NetBSD/x86_64/9.0_2020Q3/All/libXau-1.0.9.tgz
+          pkg_add https://nycdn.netbsd.org/pub/pkgsrc/packages/NetBSD/x86_64/9.0_2020Q3/All/libXdmcp-1.1.3.tgz
+          pkg_add https://nycdn.netbsd.org/pub/pkgsrc/packages/NetBSD/x86_64/9.0_2020Q3/All/libxcb-1.14.tgz
+          pkg_add https://nycdn.netbsd.org/pub/pkgsrc/packages/NetBSD/x86_64/9.0_2020Q3/All/libXfixes-5.0.3nb1.tgz
+          pkg_info
+          echo "done"
+        run: |
+          echo "run"
+          PATH="/usr/pkg/sbin:/usr/pkg/bin:$PATH"
+          APPVERSION=`awk -F ' = ' '$1 ~ /version/ { gsub(/[\"]/, "", $2); printf("%s",$2) }' rclip_client/Cargo.toml`
+
+          /usr/pkg/bin/cargo clean --manifest-path rclip_client/Cargo.toml
+          /usr/pkg/bin/cargo clean --manifest-path rclip_server/Cargo.toml
+
+          rm -rf artifacts
+          mkdir -p artifacts/rclip-netbsd-amd64-${APPVERSION}
+
+          RUSTFLAGS='-C target-feature=+crt-static' /usr/pkg/bin/cargo build --release --manifest-path rclip_client/Cargo.toml
+          cp rclip_client/target/release/rclip-client-cli artifacts/rclip-netbsd-amd64-${APPVERSION}/
+          /usr/pkg/bin/cargo clean --manifest-path rclip_client/Cargo.toml
+
+          RUSTFLAGS='-C target-feature=+crt-static' /usr/pkg/bin/cargo build --release --manifest-path rclip_server/Cargo.toml
+          cp rclip_server/target/release/rclip-server     artifacts/rclip-netbsd-amd64-${APPVERSION}/
+          /usr/pkg/bin/cargo clean --manifest-path rclip_server/Cargo.toml
+
+          cd artifacts && tar cvf rclip-netbsd-amd64-${APPVERSION}.tar rclip-netbsd-amd64-${APPVERSION}
+          cd -
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: rclip-netbsd-amd64
+        path: ${{ github.workspace }}/artifacts/rclip-netbsd-amd64-${{ env.rclip_version }}.tar
