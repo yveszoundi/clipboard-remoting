@@ -47,8 +47,8 @@ jobs:
         cargo clean --manifest-path rclip_client/Cargo.toml
         cargo clean --manifest-path rclip_server/Cargo.toml
         rm -rf artifacts
-        RUSTFLAGS='-C target-feature=+crt-static' cargo build --release --features=gui --target x86_64-pc-windows-gnu --manifest-path rclip_client/Cargo.toml
-        RUSTFLAGS='-C target-feature=+crt-static' cargo build --release                --target x86_64-pc-windows-gnu --manifest-path rclip_server/Cargo.toml
+        CARGO_NET_GIT_FETCH_WITH_CLI=true CARGO_NET_RETRY=10 RUSTFLAGS='-C target-feature=+crt-static' cargo build --release --features=gui --target x86_64-pc-windows-gnu --manifest-path rclip_client/Cargo.toml
+        CARGO_NET_GIT_FETCH_WITH_CLI=true CARGO_NET_RETRY=10 RUSTFLAGS='-C target-feature=+crt-static' cargo build --release                --target x86_64-pc-windows-gnu --manifest-path rclip_server/Cargo.toml
         mkdir -p artifacts/rclip-windows-amd64-${APPVERSION}
         cp rclip_client/target/x86_64-pc-windows-gnu/release/*.exe artifacts/rclip-windows-amd64-${APPVERSION}/
         cp rclip_server/target/x86_64-pc-windows-gnu/release/*.exe artifacts/rclip-windows-amd64-${APPVERSION}/
@@ -104,35 +104,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: rclip-linux-amd64
-        path: ${{ github.workspace }}/artifacts/rclip-linux-amd64-${{ env.rclip_version }}.tar
-  macos:
-    name: Mac OS amd64 build
-    runs-on: macos-10.15
-    steps:
-    - uses: actions/checkout@v3
-    - name: Build
-      shell: bash
-      run: |
-        APPVERSION=$(awk -F ' = ' '$1 ~ /version/ { gsub(/[\"]/, "", $2); printf("%s",$2) }' rclip_client/Cargo.toml)
-        echo "rclip_version=$APPVERSION" >> $GITHUB_ENV
-        cargo clean --manifest-path rclip_client/Cargo.toml
-        cargo clean --manifest-path rclip_server/Cargo.toml
-        rm -rf artifacts
-        RUSTFLAGS='-C target-feature=+crt-static' cargo build --release --features=gui --manifest-path rclip_client/Cargo.toml
-        RUSTFLAGS='-C target-feature=+crt-static' cargo build --release --manifest-path rclip_server/Cargo.toml
-        mkdir -p artifacts/rclip-macos-amd64-${APPVERSION}        
-        
-        cp rclip_client/target/release/rclip-client-gui artifacts/rclip-macos-amd64-${APPVERSION}/
-        cp rclip_client/target/release/rclip-client-cli artifacts/rclip-macos-amd64-${APPVERSION}/
-        cp rclip_server/target/release/rclip-server     artifacts/rclip-macos-amd64-${APPVERSION}/
-
-        cd artifacts && tar cvf rclip-macos-amd64-${APPVERSION}.tar rclip-macos-amd64-${APPVERSION}
-        cd -
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: rclip-macos-amd64
-        path: ${{ github.workspace }}/artifacts/rclip-macos-amd64-${{ env.rclip_version }}.tar
+        path: ${{ github.workspace }}/artifacts/rclip-linux-amd64-${{ env.rclip_version }}.tar  
   openbsd:
     name: OpenBSD amd64 build
     runs-on: macos-12
@@ -159,7 +131,7 @@ jobs:
           rm -rf artifacts
           mkdir -p artifacts/rclip-openbsd-amd64-${APPVERSION}
 
-          RUSTFLAGS='-C target-feature=+crt-static' cargo build --release --manifest-path rclip_client/Cargo.toml
+          CARGO_NET_GIT_FETCH_WITH_CLI=true CARGO_NET_RETRY=10 RUSTFLAGS='-C target-feature=+crt-static' cargo build --release --manifest-path rclip_client/Cargo.toml
           cp rclip_client/target/release/rclip-client-cli artifacts/rclip-openbsd-amd64-${APPVERSION}/
           cargo clean --manifest-path rclip_client/Cargo.toml
 
@@ -202,11 +174,11 @@ jobs:
           rm -rf artifacts
           mkdir -p artifacts/rclip-freebsd-amd64-${APPVERSION}
           
-          RUSTFLAGS='-C target-feature=+crt-static' ~/.cargo/bin/cargo build --release --manifest-path rclip_client/Cargo.toml          
+          CARGO_NET_GIT_FETCH_WITH_CLI=true CARGO_NET_RETRY=10 RUSTFLAGS='-C target-feature=+crt-static' ~/.cargo/bin/cargo build --release --manifest-path rclip_client/Cargo.toml          
           cp rclip_client/target/release/rclip-client-cli artifacts/rclip-freebsd-amd64-${APPVERSION}/          
           ~/.cargo/bin/cargo clean --manifest-path rclip_client/Cargo.toml
           
-          RUSTFLAGS='-C target-feature=+crt-static' ~/.cargo/bin/cargo build --release  --manifest-path rclip_server/Cargo.toml          
+          CARGO_NET_GIT_FETCH_WITH_CLI=true CARGO_NET_RETRY=10 RUSTFLAGS='-C target-feature=+crt-static' ~/.cargo/bin/cargo build --release  --manifest-path rclip_server/Cargo.toml          
           cp rclip_server/target/release/rclip-server     artifacts/rclip-freebsd-amd64-${APPVERSION}/
           ~/.cargo/bin/cargo clean --manifest-path rclip_server/Cargo.toml
 
@@ -256,11 +228,11 @@ jobs:
           rm -rf artifacts
           mkdir -p artifacts/rclip-netbsd-amd64-${APPVERSION}
 
-          RUSTFLAGS='-C target-feature=+crt-static' /usr/pkg/bin/cargo build --release --manifest-path rclip_client/Cargo.toml
+          CARGO_NET_GIT_FETCH_WITH_CLI=true CARGO_NET_RETRY=10 RUSTFLAGS='-C target-feature=+crt-static' /usr/pkg/bin/cargo build --release --manifest-path rclip_client/Cargo.toml
           cp rclip_client/target/release/rclip-client-cli artifacts/rclip-netbsd-amd64-${APPVERSION}/
           /usr/pkg/bin/cargo clean --manifest-path rclip_client/Cargo.toml
 
-          RUSTFLAGS='-C target-feature=+crt-static' /usr/pkg/bin/cargo build --release --manifest-path rclip_server/Cargo.toml
+          CARGO_NET_GIT_FETCH_WITH_CLI=true CARGO_NET_RETRY=10 RUSTFLAGS='-C target-feature=+crt-static' /usr/pkg/bin/cargo build --release --manifest-path rclip_server/Cargo.toml
           cp rclip_server/target/release/rclip-server     artifacts/rclip-netbsd-amd64-${APPVERSION}/
           /usr/pkg/bin/cargo clean --manifest-path rclip_server/Cargo.toml
 
